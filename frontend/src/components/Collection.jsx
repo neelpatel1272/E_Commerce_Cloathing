@@ -1,219 +1,204 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Heart, Eye, Search, SlidersHorizontal, X } from "lucide-react";
 
 import Layout from "./common/Layout";
 import { apiurl } from "./common/Http";
+import Breadcrumb from "./common/Breadcrumb";
 
-const Shop = () => {
-  const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
+const Collection = () => {
+  const { slug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [collection, setCollection] = useState(null);
   const [products, setProducts] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [sizes, setSizes] = useState([]);
 
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("");
 
-  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [loadingBrands, setLoadingBrands] = useState(true);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingSizes, setLoadingSizes] = useState(true);
 
-  // =========================================================
-  // FETCH CATEGORIES
-  // =========================================================
-  const fetchCategories = async () => {
-    try {
-      setLoadingCategories(true);
-
-      const res = await fetch(`${apiurl}get-categories`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      const result = await res.json();
-
-      console.log("Categories:", result);
-
-      if (result.status && Array.isArray(result.data)) {
-        setCategories(result.data);
-      } else {
-        setCategories([]);
-      }
-    } catch (error) {
-      console.error("Category fetch error:", error);
-      setCategories([]);
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
-  // =========================================================
-  // FETCH BRANDS
-  // =========================================================
   const fetchBrands = async () => {
     try {
-      setLoadingBrands(true);
-
       const res = await fetch(`${apiurl}get-brands`, {
-        method: "GET",
         headers: {
           Accept: "application/json",
         },
       });
 
       const result = await res.json();
-
-      console.log("Brands:", result);
 
       if (result.status && Array.isArray(result.data)) {
         setBrands(result.data);
-      } else {
-        setBrands([]);
       }
     } catch (error) {
-      console.error("Brand fetch error:", error);
-      setBrands([]);
+      console.error("Brand Error:", error);
     } finally {
       setLoadingBrands(false);
     }
   };
 
-  // =========================================================
-  // FETCH PRODUCTS
-  // =========================================================
-  const fetchProducts = async () => {
+  const fetchSizes = async () => {
     try {
-      setLoadingProducts(true);
-
-      const params = new URLSearchParams();
-
-      // Multiple Categories
-      if (selectedCategories.length > 0) {
-        params.append("category", selectedCategories.join(","));
-      }
-
-      // Multiple Brands
-      if (selectedBrands.length > 0) {
-        params.append("brand", selectedBrands.join(","));
-      }
-
-      const url = `${apiurl}get-products${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
-
-      console.log("=================================");
-      console.log("PRODUCT API URL:", url);
-      console.log("SELECTED CATEGORIES:", selectedCategories);
-      console.log("SELECTED BRANDS:", selectedBrands);
-
-      const res = await fetch(url, {
-        method: "GET",
+      const res = await fetch(`${apiurl}sizes`, {
         headers: {
           Accept: "application/json",
         },
       });
 
-      console.log("PRODUCT STATUS:", res.status);
-
       const result = await res.json();
 
-      console.log("PRODUCT API RESPONSE:", result);
-
-      /*
-       * VERY IMPORTANT
-       *
-       * Make sure result.data is actually an array.
-       * Otherwise [...products] can crash React.
-       */
-      if (result && result.status === true && Array.isArray(result.data)) {
-        setProducts(result.data);
-      } else {
-        console.warn("Product data is not an array:", result.data);
-
-        setProducts([]);
+      if (result.status && Array.isArray(result.data)) {
+        setSizes(result.data);
       }
     } catch (error) {
-      console.error("Product fetch error:", error);
-      setProducts([]);
+      console.error("Size Error:", error);
     } finally {
-      setLoadingProducts(false);
+      setLoadingSizes(false);
     }
   };
 
-  // =========================================================
-  // INITIAL LOAD
-  // =========================================================
+  const fetchCollection = async () => {
+    try {
+      setLoading(true);
+
+      const params = new URLSearchParams();
+
+      if (selectedBrands.length > 0) {
+        params.append("brand", selectedBrands.join(","));
+      }
+
+      if (selectedSizes.length > 0) {
+        params.append("size", selectedSizes.join(","));
+      }
+
+      if (minPrice !== "") {
+        params.append("min_price", minPrice);
+      }
+
+      if (maxPrice !== "") {
+        params.append("max_price", maxPrice);
+      }
+
+      const url =
+        `${apiurl}collections/${slug}` +
+        (params.toString() ? `?${params.toString()}` : "");
+
+      const res = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      const result = await res.json();
+
+      if (result.status) {
+        setCollection(result.collection);
+        setProducts(Array.isArray(result.data) ? result.data : []);
+      } else {
+        setCollection(null);
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error("Collection Error:", error);
+      setCollection(null);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchCategories();
     fetchBrands();
+    fetchSizes();
   }, []);
 
-  // =========================================================
-  // FETCH PRODUCTS WHEN CATEGORY / BRAND CHANGES
-  // =========================================================
   useEffect(() => {
-    fetchProducts();
-  }, [selectedCategories, selectedBrands]);
+    setSelectedBrands(
+      searchParams.get("brand") ? searchParams.get("brand").split(",") : [],
+    );
 
-  // =========================================================
-  // CATEGORY CHANGE
-  // =========================================================
-  const handleCategoryChange = (categoryId) => {
-    const id = String(categoryId);
+    setSelectedSizes(
+      searchParams.get("size") ? searchParams.get("size").split(",") : [],
+    );
 
-    setSelectedCategories((prev) => {
-      const exists = prev.some((item) => String(item) === id);
+    setMinPrice(searchParams.get("min_price") || "");
 
-      if (exists) {
-        return prev.filter((item) => String(item) !== id);
-      }
+    setMaxPrice(searchParams.get("max_price") || "");
+  }, [searchParams]);
 
-      return [...prev, id];
-    });
+  useEffect(() => {
+    fetchCollection();
+  }, [slug, selectedBrands, selectedSizes, minPrice, maxPrice]);
+
+  const updateFilters = (brandsValue, sizesValue, minValue, maxValue) => {
+    const params = {};
+
+    if (brandsValue.length > 0) {
+      params.brand = brandsValue.join(",");
+    }
+
+    if (sizesValue.length > 0) {
+      params.size = sizesValue.join(",");
+    }
+
+    if (minValue !== "") {
+      params.min_price = minValue;
+    }
+
+    if (maxValue !== "") {
+      params.max_price = maxValue;
+    }
+
+    setSearchParams(params);
   };
 
-  // =========================================================
-  // BRAND CHANGE
-  // =========================================================
-  const handleBrandChange = (brandId) => {
-    const id = String(brandId);
+  const handleBrandChange = (id) => {
+    const value = String(id);
 
-    setSelectedBrands((prev) => {
-      const exists = prev.some((item) => String(item) === id);
+    const newBrands = selectedBrands.includes(value)
+      ? selectedBrands.filter((item) => item !== value)
+      : [...selectedBrands, value];
 
-      if (exists) {
-        return prev.filter((item) => String(item) !== id);
-      }
-
-      return [...prev, id];
-    });
+    updateFilters(newBrands, selectedSizes, minPrice, maxPrice);
   };
 
-  // =========================================================
-  // CLEAR FILTERS
-  // =========================================================
+  const handleSizeChange = (id) => {
+    const value = String(id);
+
+    const newSizes = selectedSizes.includes(value)
+      ? selectedSizes.filter((item) => item !== value)
+      : [...selectedSizes, value];
+
+    updateFilters(selectedBrands, newSizes, minPrice, maxPrice);
+  };
+
+  const applyPrice = () => {
+    updateFilters(selectedBrands, selectedSizes, minPrice, maxPrice);
+  };
+
   const clearFilters = () => {
-    setSelectedCategories([]);
-    setSelectedBrands([]);
     setSearch("");
     setSort("");
+    setSearchParams({});
   };
 
-  // =========================================================
-  // SEARCH + SORT
-  // =========================================================
   const filteredProducts = Array.isArray(products)
     ? products
         .filter((product) => {
-          if (!product) return false;
+          const title = String(product?.title || "").toLowerCase();
 
-          const productTitle = String(product.title || "");
-
-          return productTitle.toLowerCase().includes(search.toLowerCase());
+          return title.includes(search.toLowerCase());
         })
         .sort((a, b) => {
           if (sort === "price_low") {
@@ -238,65 +223,30 @@ const Shop = () => {
         })
     : [];
 
-  // =========================================================
-  // ACTIVE FILTERS
-  // =========================================================
   const hasFilters =
-    selectedCategories.length > 0 ||
     selectedBrands.length > 0 ||
+    selectedSizes.length > 0 ||
+    minPrice !== "" ||
+    maxPrice !== "" ||
     search !== "" ||
     sort !== "";
 
   return (
     <Layout>
+            <Breadcrumb
+        title={collection?.name || slug}
+        parent="Home"
+        parentLink="/"
+    />
+
       <main className="shop-page">
         <div className="container">
-          {/* =================================================
-              BREADCRUMB
-          ================================================= */}
-          <nav aria-label="breadcrumb" className="shop-breadcrumb">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <Link to="/">Home</Link>
-              </li>
-
-              <li className="breadcrumb-item active" aria-current="page">
-                Shop
-              </li>
-            </ol>
-          </nav>
-
-          {/* =================================================
-              HEADER
-          ================================================= */}
-          <div className="shop-header">
-            <div>
-              <span className="shop-header-label">Our Collection</span>
-
-              <h1>Shop Products</h1>
-
-              <p>
-                Discover our latest collection of quality products selected just
-                for you.
-              </p>
-            </div>
-
-            <div className="shop-result-count">
-              <strong>{filteredProducts.length}</strong>
-
-              <span>Products</span>
-            </div>
-          </div>
-
-          {/* =================================================
-              MOBILE FILTER
-          ================================================= */}
           <div className="shop-mobile-filter">
             <button
               type="button"
               className="shop-filter-toggle"
               data-bs-toggle="offcanvas"
-              data-bs-target="#shopFilter"
+              data-bs-target="#collectionFilter"
             >
               <SlidersHorizontal size={18} />
               Filters
@@ -314,14 +264,11 @@ const Shop = () => {
           </div>
 
           <div className="row g-4">
-            {/* =================================================
-                SIDEBAR
-            ================================================= */}
             <aside className="col-lg-3">
               <div
                 className="shop-filter-sidebar offcanvas-lg offcanvas-start"
                 tabIndex="-1"
-                id="shopFilter"
+                id="collectionFilter"
               >
                 <div className="offcanvas-header shop-filter-mobile-header">
                   <h5>Filters</h5>
@@ -330,12 +277,10 @@ const Shop = () => {
                     type="button"
                     className="btn-close"
                     data-bs-dismiss="offcanvas"
-                    data-bs-target="#shopFilter"
                   />
                 </div>
 
                 <div className="shop-filter-inner">
-                  {/* Filter Heading */}
                   <div className="shop-filter-heading">
                     <div>
                       <span>Refine</span>
@@ -349,54 +294,79 @@ const Shop = () => {
                     )}
                   </div>
 
-                  {/* =================================================
-                      CATEGORIES
-                  ================================================= */}
                   <div className="shop-filter-group">
                     <div className="shop-filter-title">
-                      <h4>Categories</h4>
-
-                      <span>{categories.length}</span>
+                      <h4>Price</h4>
                     </div>
 
-                    {loadingCategories ? (
+                    <div className="row g-2">
+                      <div className="col-6">
+                        <input
+                          type="number"
+                          className="form-control"
+                          placeholder="Min"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="col-6">
+                        <input
+                          type="number"
+                          className="form-control"
+                          placeholder="Max"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="col-12">
+                        <button
+                          type="button"
+                          className="btn btn-dark w-100"
+                          onClick={applyPrice}
+                        >
+                          Apply Price
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="shop-filter-group">
+                    <div className="shop-filter-title">
+                      <h4>Size</h4>
+
+                      <span>{sizes.length}</span>
+                    </div>
+
+                    {loadingSizes ? (
                       <div className="shop-filter-loading">
                         <span />
                         <span />
                         <span />
                       </div>
-                    ) : categories.length > 0 ? (
-                      <ul className="shop-filter-list">
-                        {categories.map((category) => {
-                          const categoryId = String(category.id);
-
-                          const checked = selectedCategories.some(
-                            (id) => String(id) === categoryId,
-                          );
-
-                          return (
-                            <li key={category.id}>
-                              <label className="shop-check">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={() =>
-                                    handleCategoryChange(category.id)
-                                  }
-                                />
-
-                                <span className="shop-check-box" />
-
-                                <span className="shop-check-name">
-                                  {category.name}
-                                </span>
-                              </label>
-                            </li>
-                          );
-                        })}
-                      </ul>
                     ) : (
-                      <p className="shop-filter-empty">No categories found.</p>
+                      <ul className="shop-filter-list">
+                        {sizes.map((size) => (
+                          <li key={size.id}>
+                            <label className="shop-check">
+                              <input
+                                type="checkbox"
+                                checked={selectedSizes.includes(
+                                  String(size.id),
+                                )}
+                                onChange={() => handleSizeChange(size.id)}
+                              />
+
+                              <span className="shop-check-box" />
+
+                              <span className="shop-check-name">
+                                {size.name}
+                              </span>
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
                     )}
                   </div>
 
@@ -413,45 +383,35 @@ const Shop = () => {
                         <span />
                         <span />
                       </div>
-                    ) : brands.length > 0 ? (
-                      <ul className="shop-filter-list">
-                        {brands.map((brand) => {
-                          const brandId = String(brand.id);
-
-                          const checked = selectedBrands.some(
-                            (id) => String(id) === brandId,
-                          );
-
-                          return (
-                            <li key={brand.id}>
-                              <label className="shop-check">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={() => handleBrandChange(brand.id)}
-                                />
-
-                                <span className="shop-check-box" />
-
-                                <span className="shop-check-name">
-                                  {brand.name}
-                                </span>
-                              </label>
-                            </li>
-                          );
-                        })}
-                      </ul>
                     ) : (
-                      <p className="shop-filter-empty">No brands found.</p>
+                      <ul className="shop-filter-list">
+                        {brands.map((brand) => (
+                          <li key={brand.id}>
+                            <label className="shop-check">
+                              <input
+                                type="checkbox"
+                                checked={selectedBrands.includes(
+                                  String(brand.id),
+                                )}
+                                onChange={() => handleBrandChange(brand.id)}
+                              />
+
+                              <span className="shop-check-box" />
+
+                              <span className="shop-check-name">
+                                {brand.name}
+                              </span>
+                            </label>
+                          </li>
+                        ))}
+                      </ul>
                     )}
                   </div>
                 </div>
               </div>
             </aside>
 
-           
             <section className="col-lg-9">
-              {/* Toolbar */}
               <div className="shop-toolbar">
                 <div className="shop-search">
                   <Search size={18} />
@@ -493,26 +453,6 @@ const Shop = () => {
                 <div className="shop-active-filters">
                   <span className="shop-active-label">Active filters:</span>
 
-                  {/* Categories */}
-                  {selectedCategories.map((id) => {
-                    const category = categories.find(
-                      (item) => String(item.id) === String(id),
-                    );
-
-                    if (!category) return null;
-
-                    return (
-                      <button
-                        key={`category-${id}`}
-                        type="button"
-                        onClick={() => handleCategoryChange(id)}
-                      >
-                        {category.name}
-                        <X size={13} />
-                      </button>
-                    );
-                  })}
-
                   {selectedBrands.map((id) => {
                     const brand = brands.find(
                       (item) => String(item.id) === String(id),
@@ -532,7 +472,61 @@ const Shop = () => {
                     );
                   })}
 
-                  {/* Search */}
+                  {selectedSizes.map((id) => {
+                    const size = sizes.find(
+                      (item) => String(item.id) === String(id),
+                    );
+
+                    if (!size) return null;
+
+                    return (
+                      <button
+                        key={`size-${id}`}
+                        type="button"
+                        onClick={() => handleSizeChange(id)}
+                      >
+                        {size.name}
+                        <X size={13} />
+                      </button>
+                    );
+                  })}
+
+                  {minPrice && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMinPrice("");
+                        updateFilters(
+                          selectedBrands,
+                          selectedSizes,
+                          "",
+                          maxPrice,
+                        );
+                      }}
+                    >
+                      Min ₹{minPrice}
+                      <X size={13} />
+                    </button>
+                  )}
+
+                  {maxPrice && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMaxPrice("");
+                        updateFilters(
+                          selectedBrands,
+                          selectedSizes,
+                          minPrice,
+                          "",
+                        );
+                      }}
+                    >
+                      Max ₹{maxPrice}
+                      <X size={13} />
+                    </button>
+                  )}
+
                   {search && (
                     <button type="button" onClick={() => setSearch("")}>
                       Search: {search}
@@ -540,7 +534,6 @@ const Shop = () => {
                     </button>
                   )}
 
-                  {/* Sort */}
                   {sort && (
                     <button type="button" onClick={() => setSort("")}>
                       {sort === "price_low"
@@ -548,17 +541,13 @@ const Shop = () => {
                         : sort === "price_high"
                           ? "Price: High to Low"
                           : "Oldest"}
-
                       <X size={13} />
                     </button>
                   )}
                 </div>
               )}
 
-              {/* =================================================
-                  LOADING
-              ================================================= */}
-              {loadingProducts ? (
+              {loading ? (
                 <div className="row g-4">
                   {[1, 2, 3, 4, 5, 6].map((item) => (
                     <div className="col-6 col-md-4" key={item}>
@@ -571,22 +560,16 @@ const Shop = () => {
                   ))}
                 </div>
               ) : filteredProducts.length > 0 ? (
-                /* =================================================
-                   PRODUCT GRID
-                ================================================= */
                 <div className="row g-4">
                   {filteredProducts.map((product) => {
                     const productTitle = product?.title || "Product";
 
                     const categoryName =
-                      product?.category?.name ||
-                      product?.category_name ||
-                      "Product";
+                      product?.category?.name || collection?.name || "Product";
 
                     return (
                       <div className="col-6 col-md-4" key={product.id}>
                         <article className="product-card">
-                          {/* Image */}
                           <div className="product-card-image">
                             {product?.is_featured === "yes" && (
                               <span className="product-badge featured">
@@ -617,13 +600,11 @@ const Shop = () => {
                             <Link
                               to={`/product/${product.id}`}
                               className="product-view-button"
-                              aria-label={`View ${productTitle}`}
                             >
                               <Eye size={17} />
                             </Link>
                           </div>
 
-                          {/* Content */}
                           <div className="product-card-content">
                             <span className="product-category">
                               {categoryName}
@@ -659,9 +640,6 @@ const Shop = () => {
                   })}
                 </div>
               ) : (
-                /* =================================================
-                   EMPTY
-                ================================================= */
                 <div className="products-empty shop-empty">
                   <div className="shop-empty-icon">
                     <Search size={26} />
@@ -693,4 +671,4 @@ const Shop = () => {
   );
 };
 
-export default Shop;
+export default Collection;

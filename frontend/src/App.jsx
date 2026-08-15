@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Home from './components/Home'
-import Shop from './components/Shop'
 import Product from './components/Product'
 import Login from './components/admin/Login'
+import Collection from './components/Collection'
+
 import { ToastContainer } from 'react-toastify'
 import Dashboard from './components/admin/Dashboard'
 import { AdminRequireAuth } from './components/admin/AdminRequireAuth'
@@ -28,8 +29,10 @@ function App() {
     <>
       <BrowserRouter>
       <Routes>
+      
         <Route path='/'  element={<Home/>}/>
-        <Route path='/shop'  element={<Shop/>}/>
+        <Route path="/collections/:slug" element={<Collection />}
+          />
         <Route path='/product/:id'  element={<Product/>}/>
         {/* <Route path='/login'  element={<Login/>}/> */}
 

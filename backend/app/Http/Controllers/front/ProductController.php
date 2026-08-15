@@ -6,46 +6,42 @@ use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Size;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     public function getproducts(Request $request)
     {
-        $query = Product::with(['category', 'brand'])
+        $query = Product::with(['category', 'brand', 'sizes'])
             ->where('status', 1)
             ->orderBy('created_at', 'DESC');
 
         if ($request->filled('category')) {
+            $catArray = array_filter(
+                explode(',', $request->category)
+            );
 
-            $catArray = explode(',', $request->category);
-
-            $catArray = array_filter($catArray);
-
-            if (! empty($catArray)) {
+            if (!empty($catArray)) {
                 $query->whereIn('category_id', $catArray);
             }
         }
 
-        // Brand filter
         if ($request->filled('brand')) {
+            $brandArray = array_filter(
+                explode(',', $request->brand)
+            );
 
-            $brandArray = explode(',', $request->brand);
-
-            $brandArray = array_filter($brandArray);
-
-            if (! empty($brandArray)) {
+            if (!empty($brandArray)) {
                 $query->whereIn('brand_id', $brandArray);
             }
         }
 
-        // Get products AFTER filters
         $products = $query->get();
 
         $products->transform(function ($product) {
-
             $product->image_url = $product->image
-                ? asset('uploads/products/large/'.$product->image)
+                ? asset('uploads/products/large/' . $product->image)
                 : null;
 
             return $product;
@@ -57,17 +53,99 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function latestproduct()
+    public function collection(Request $request, $slug)
     {
-        $products = Product::orderBy('created_at', 'DESC')
+        $category = Category::where('slug', $slug)
             ->where('status', 1)
-            ->limit(8)
+            ->first();
+
+        if (!$category) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Collection Not Found',
+            ], 404);
+        }
+
+        $query = Product::with([
+            'category',
+            'brand',
+            'sizes'
+        ])
+        ->where('status', 1)
+        ->where('category_id', $category->id);
+
+        if ($request->filled('brand')) {
+            $brandArray = array_filter(
+                explode(',', $request->brand)
+            );
+
+            if (!empty($brandArray)) {
+                $query->whereIn('brand_id', $brandArray);
+            }
+        }
+
+        if ($request->filled('min_price')) {
+            $query->where(
+                'price',
+                '>=',
+                $request->min_price
+            );
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where(
+                'price',
+                '<=',
+                $request->max_price
+            );
+        }
+
+        if ($request->filled('size')) {
+            $sizeArray = array_filter(
+                explode(',', $request->size)
+            );
+
+            if (!empty($sizeArray)) {
+                $query->whereHas('sizes', function ($q) use ($sizeArray) {
+                    $q->whereIn('sizes.id', $sizeArray);
+                });
+            }
+        }
+
+        $products = $query
+            ->orderBy('created_at', 'DESC')
             ->get();
 
         $products->transform(function ($product) {
-
             $product->image_url = $product->image
-                ? asset('uploads/products/large/'.$product->image)
+                ? asset('uploads/products/large/' . $product->image)
+                : null;
+
+            return $product;
+        });
+
+        return response()->json([
+            'status' => true,
+            'collection' => $category,
+            'data' => $products,
+        ], 200);
+    }
+
+    public function latestproduct()
+    {
+        $products = Product::with([
+            'category',
+            'brand',
+            'sizes'
+        ])
+        ->orderBy('created_at', 'DESC')
+        ->where('status', 1)
+        ->limit(8)
+        ->get();
+
+        $products->transform(function ($product) {
+            $product->image_url = $product->image
+                ? asset('uploads/products/large/' . $product->image)
                 : null;
 
             return $product;
@@ -81,16 +159,20 @@ class ProductController extends Controller
 
     public function featuredproduct()
     {
-        $products = Product::orderBy('created_at', 'DESC')
-            ->where('status', 1)
-            ->where('is_featured', 'yes')
-            ->limit(8)
-            ->get();
+        $products = Product::with([
+            'category',
+            'brand',
+            'sizes'
+        ])
+        ->orderBy('created_at', 'DESC')
+        ->where('status', 1)
+        ->where('is_featured', 'yes')
+        ->limit(8)
+        ->get();
 
         $products->transform(function ($product) {
-
             $product->image_url = $product->image
-                ? asset('uploads/products/large/'.$product->image)
+                ? asset('uploads/products/large/' . $product->image)
                 : null;
 
             return $product;
@@ -104,27 +186,29 @@ class ProductController extends Controller
 
     public function getcategories()
     {
-        $categories = Category::orderBy('name', 'Asc')->where('status', 1)->get();
+        $categories = Category::orderBy('name', 'ASC')
+            ->where('status', 1)
+            ->get();
 
         return response()->json([
             'status' => true,
             'data' => $categories,
         ], 200);
-
     }
 
     public function getbrands()
     {
-        $brands = Brand::orderBy('name', 'Asc')->where('status', 1)->get();
+        $brands = Brand::orderBy('name', 'ASC')
+            ->where('status', 1)
+            ->get();
 
         return response()->json([
             'status' => true,
             'data' => $brands,
         ], 200);
-
     }
 
-     public function getProduct(Request $request, $id)
+    public function getProduct(Request $request, $id)
     {
         $product = Product::with([
             'category',
@@ -147,7 +231,9 @@ class ProductController extends Controller
             : null;
 
         $product->images->transform(function ($image) use ($baseUrl) {
-            $image->image_url = $baseUrl . '/uploads/products/large/' . $image->image;
+            $image->image_url =
+                $baseUrl . '/uploads/products/large/' . $image->image;
+
             $image->url = $image->image_url;
 
             return $image;
@@ -156,6 +242,16 @@ class ProductController extends Controller
         return response()->json([
             'status' => true,
             'data' => $product,
+        ], 200);
+    }
+
+    public function getsizes()
+    {
+        $sizes = Size::orderBy('name', 'ASC')->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $sizes,
         ], 200);
     }
 }

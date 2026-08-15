@@ -1,11 +1,8 @@
-/**** Google Font **********/
+@use "sass:color";
+@use "sass:map";
+
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
 
-/**** =========================================================
-      GLOBAL VARIABLES
-      Brand: black wordmark on light surfaces, white logo mark
-      reserved for dark surfaces (header-dark, sidebar-dark, footer)
-========================================================= ****/
 $primary-font: "DM Sans", sans-serif;
 $primary-white: #fff;
 $primary-color: #43c3d1;
@@ -24,14 +21,13 @@ $shadow-card:
   0 2px 10px rgba($primary-black, 0.04),
   0 12px 28px rgba($primary-black, 0.05);
 
-// Tint pairs reused across stat cards / icon chips / badges
 $tint-blue: (
   bg: rgba($secondary-color, 0.1),
   fg: $secondary-color,
 );
 $tint-teal: (
   bg: rgba($primary-color, 0.12),
-  fg: darken($primary-color, 8%),
+  fg: color.adjust($primary-color, $lightness: -8%),
 );
 $tint-rose: (
   bg: rgba(#e0475a, 0.1),
@@ -46,16 +42,48 @@ $tint-green: (
   fg: #1ba672,
 );
 
-/**** =========================================================
-      BASE ELEMENTS
-========================================================= ****/
-
 body {
   font-family: $primary-font;
   font-size: 1em;
   color: $primary-black;
   font-weight: 500;
   background-color: $surface;
+}
+
+.custom-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid #111;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999999;
+  will-change: transform;
+  transition:
+    width 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.25s ease;
+}
+
+.custom-cursor-dot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  background: #111;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000000;
+  will-change: transform;
+}
+
+.custom-cursor.clicked {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.08);
 }
 
 h1 {
@@ -160,9 +188,7 @@ ul {
   filter: brightness(0) invert(1); // forces a black-source SVG/PNG to render white
 }
 
-/**** =========================================================
-      HEADER / NAV
-========================================================= ****/
+
 
 header {
   .navbar-expand-lg {
@@ -184,9 +210,6 @@ header {
   }
 }
 
-/**** =========================================================
-      FOOTER
-========================================================= ****/
 
 footer {
   background-color: $tertiary-color;
@@ -507,10 +530,6 @@ footer {
   }
 }
 
-/**** =========================================================
-      ADMIN SIDEBAR
-========================================================= ****/
-
 .sidebar {
   border-radius: $radius-lg;
   overflow: hidden;
@@ -698,10 +717,6 @@ footer {
   }
 }
 
-/**** =========================================================
-      ADMIN PAGE HEADER
-========================================================= ****/
-
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -739,10 +754,6 @@ footer {
     }
   }
 }
-
-/**** =========================================================
-      DASHBOARD WELCOME BANNER
-========================================================= ****/
 
 .welcome-banner {
   position: relative;
@@ -812,10 +823,6 @@ footer {
   }
 }
 
-/**** =========================================================
-      QUICK ACTIONS
-========================================================= ****/
-
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -847,7 +854,7 @@ footer {
     align-items: center;
     justify-content: center;
     background: rgba($primary-color, 0.12);
-    color: darken($primary-color, 8%);
+    color: color.adjust($primary-color, $lightness: -8%);
   }
 
   span {
@@ -867,10 +874,6 @@ footer {
     }
   }
 }
-
-/**** =========================================================
-      DASHBOARD STAT CARDS (large, icon-gradient style)
-========================================================= ****/
 
 .dashboard-header {
   h4 {
@@ -939,10 +942,6 @@ footer {
   }
 }
 
-/**** =========================================================
-      MINI STAT CARDS (icon-chip style, used on list pages)
-========================================================= ****/
-
 .mini-stat-card {
   background: $surface-card;
   border: 1px solid $border-soft;
@@ -990,24 +989,19 @@ footer {
   @each $name,
     $pair
       in (
-        blue: $tint-blue,
-        teal: $tint-teal,
-        rose: $tint-rose,
-        amber: $tint-amber,
-        green: $tint-green
+        "blue": $tint-blue,
+        "teal": $tint-teal,
+        "rose": $tint-rose,
+        "amber": $tint-amber,
+        "green": $tint-green
       )
   {
     &.tint-#{$name} .icon-chip {
-      background-color: map-get($pair, bg);
-      color: map-get($pair, fg);
+      background-color: map.get($pair, bg);
+      color: map.get($pair, fg);
     }
   }
 }
-
-/**** =========================================================
-      DATA TABLE CARD (list pages: categories, products, orders…)
-========================================================= ****/
-
 .data-card {
   background: $surface-card;
   border: 1px solid $border-soft;
@@ -1118,7 +1112,7 @@ footer {
         height: 38px;
         border-radius: $radius-sm;
         background: rgba($primary-color, 0.1);
-        color: darken($primary-color, 8%);
+        color: color.adjust($primary-color, $lightness: -8%);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1155,10 +1149,10 @@ footer {
       }
 
       &.active {
-        background: map-get($tint-green, bg);
-        color: map-get($tint-green, fg);
+        background: map.get($tint-green, bg);
+        color: map.get($tint-green, fg);
         &::before {
-          background: map-get($tint-green, fg);
+          background: map.get($tint-green, fg);
         }
       }
 
@@ -1405,8 +1399,8 @@ footer {
 
       &.checked-active {
         border-color: rgba(#1ba672, 0.4);
-        background: map-get($tint-green, bg);
-        color: map-get($tint-green, fg);
+        background: map.get($tint-green, bg);
+        color: map.get($tint-green, fg);
       }
 
       &.checked-inactive {
@@ -1478,8 +1472,8 @@ footer {
     }
 
     &.success {
-      background: map-get($tint-green, bg);
-      color: map-get($tint-green, fg);
+      background: map.get($tint-green, bg);
+      color: map.get($tint-green, fg);
     }
   }
 }
@@ -1647,8 +1641,8 @@ footer {
         box-shadow: 0 6px 16px rgba(#e0475a, 0.3);
 
         &:hover {
-          background: darken(#e0475a, 8%);
-          border-color: darken(#e0475a, 8%);
+          background: color.adjust(#e0475a, $lightness: -8%);
+          border-color: color.adjust(#e0475a, $lightness: -8%);
         }
       }
 
@@ -1863,7 +1857,7 @@ footer {
     transition: all 0.2s ease;
 
     &:hover {
-      background: darken($primary-color, 7%);
+      background: color.adjust($primary-color, $lightness: -7%);
     }
   }
 
@@ -1894,213 +1888,6 @@ footer {
       font-weight: 600;
     }
   }
-
-  //   .product-gallery {
-  //     display: grid;
-  //     grid-template-columns: repeat(4, minmax(0, 1fr));
-  //     gap: 16px;
-  //     margin-top: 18px;
-  //   }
-
-  //   .product-gallery-item {
-  //     min-width: 0;
-  //     overflow: hidden;
-  //     background: $surface-card;
-  //     border: 1px solid rgba($primary-black, 0.1);
-  //     border-radius: $radius-md;
-  //     transition: all 0.2s ease;
-  //     cursor: grab;
-
-  //     &:hover {
-  //       border-color: rgba($primary-color, 0.5);
-  //       box-shadow: 0 8px 24px rgba($primary-black, 0.08);
-  //       transform: translateY(-2px);
-  //     }
-
-  //     &.main-image {
-  //       border-color: rgba($primary-color, 0.6);
-  //       box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
-  //     }
-
-  //     &.dragging {
-  //       opacity: 0.45;
-  //       transform: scale(0.96);
-  //       cursor: grabbing;
-  //     }
-
-  //     &.drag-over {
-  //       border-color: $primary-color;
-  //       box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
-  //       transform: scale(1.02);
-  //     }
-  //   }
-
-  //   .product-preview {
-  //     height: 240px;
-  //     position: relative;
-  //     display: flex;
-  //     align-items: center;
-  //     justify-content: center;
-  //     background: #f8f9fa;
-  //     overflow: hidden;
-
-  //     img {
-  //       width: 100%;
-  //       height: 100%;
-  //       display: block;
-  //       object-fit: contain;
-  //       padding: 10px;
-  //       pointer-events: none;
-  //     }
-  //   }
-
-  //   .drag-handle {
-  //     position: absolute;
-  //     left: 10px;
-  //     bottom: 10px;
-  //     z-index: 4;
-  //     width: 32px;
-  //     height: 32px;
-  //     display: flex;
-  //     align-items: center;
-  //     justify-content: center;
-  //     border-radius: 7px;
-  //     background: rgba($primary-black, 0.7);
-  //     color: $primary-white;
-  //     opacity: 0;
-  //     transition: all 0.2s ease;
-  //     pointer-events: none;
-  //   }
-
-  //   .product-gallery-item:hover .drag-handle {
-  //     opacity: 1;
-  //   }
-
-  //   .main-image-badge {
-  //     position: absolute;
-  //     top: 10px;
-  //     left: 10px;
-  //     z-index: 3;
-  //     padding: 6px 11px;
-  //     border-radius: 7px;
-  //     background: $primary-color;
-  //     color: $primary-white;
-  //     font-size: 0.72rem;
-  //     font-weight: 700;
-  //   }
-
-  //   .remove-image {
-  //     position: absolute;
-  //     top: 10px;
-  //     right: 10px;
-  //     z-index: 3;
-  //     width: 32px;
-  //     height: 32px;
-  //     padding: 0;
-  //     border: 1px solid rgba($primary-black, 0.08);
-  //     border-radius: 50%;
-  //     background: rgba($primary-white, 0.95);
-  //     color: #e0475a;
-  //     display: flex;
-  //     align-items: center;
-  //     justify-content: center;
-  //     cursor: pointer;
-  //     box-shadow: 0 3px 10px rgba($primary-black, 0.1);
-
-  //     &:hover {
-  //       background: #e0475a;
-  //       border-color: #e0475a;
-  //       color: $primary-white;
-  //     }
-  //   }
-
-  //   .product-image-footer {
-  //     min-height: 54px;
-  //     padding: 10px 12px;
-  //     display: flex;
-  //     align-items: center;
-  //     gap: 10px;
-  //     border-top: 1px solid rgba($primary-black, 0.07);
-  //     background: $primary-white;
-  //   }
-
-  //   .image-number {
-  //     width: 28px;
-  //     height: 28px;
-  //     flex-shrink: 0;
-  //     display: flex;
-  //     align-items: center;
-  //     justify-content: center;
-  //     border-radius: 50%;
-  //     background: $surface;
-  //     color: rgba($primary-black, 0.55);
-  //     font-size: 0.75rem;
-  //     font-weight: 700;
-  //   }
-
-  //   .image-name {
-  //     min-width: 0;
-  //     flex: 1;
-  //     overflow: hidden;
-  //     text-overflow: ellipsis;
-  //     white-space: nowrap;
-  //     color: rgba($primary-black, 0.6);
-  //     font-size: 0.8rem;
-  //   }
-
-  //   .make-main-btn {
-  //     flex-shrink: 0;
-  //     border: 1px solid rgba($primary-color, 0.3);
-  //     background: rgba($primary-color, 0.08);
-  //     color: darken($primary-color, 10%);
-  //     border-radius: 6px;
-  //     padding: 5px 8px;
-  //     font-size: 0.68rem;
-  //     font-weight: 700;
-  //     cursor: pointer;
-  //     transition: all 0.2s ease;
-
-  //     &:hover {
-  //       background: $primary-color;
-  //       border-color: $primary-color;
-  //       color: $primary-white;
-  //     }
-  //   }
-
-  //   @media (max-width: 1200px) {
-  //     .product-gallery {
-  //       grid-template-columns: repeat(3, minmax(0, 1fr));
-  //     }
-  //   }
-
-  //   @media (max-width: 768px) {
-  //     .product-gallery {
-  //       grid-template-columns: repeat(2, minmax(0, 1fr));
-  //     }
-
-  //     .product-preview {
-  //       height: 220px;
-  //     }
-  //   }
-
-  //   @media (max-width: 576px) {
-  //     .product-gallery {
-  //       grid-template-columns: 1fr;
-  //     }
-
-  //     .product-preview {
-  //       height: 280px;
-  //     }
-
-  //     .drag-handle {
-  //       opacity: 1;
-  //     }
-
-  //     .make-main-btn {
-  //       display: block;
-  //     }
-  //   }
-  // }
 
   .product-gallery {
     display: grid;
@@ -2245,7 +2032,7 @@ footer {
     flex-shrink: 0;
     border: 1px solid rgba($primary-color, 0.3);
     background: rgba($primary-color, 0.08);
-    color: darken($primary-color, 10%);
+    color: color.adjust($primary-color, $lightness: -10%);
     border-radius: 6px;
     padding: 4px 7px;
     font-size: 0.65rem;
@@ -2432,33 +2219,25 @@ footer {
 
 .product-card {
   position: relative;
-
   height: 100%;
-
   background: $surface-card;
-
   border: 1px solid $border-soft;
   border-radius: $radius-md;
-
   overflow: hidden;
-
   box-shadow: 0 2px 8px rgba($primary-black, 0.025);
-
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease,
     border-color 0.3s ease;
-
   &:hover {
     transform: translateY(-5px);
-
     border-color: rgba($primary-color, 0.18);
-
     box-shadow: $shadow-card;
-
+    
     .product-card-image img {
       transform: scale(1.045);
     }
+    
 
     .product-view-button {
       opacity: 1;
@@ -2474,56 +2253,36 @@ footer {
   }
 }
 
-/* =========================================================
-   IMAGE AREA
-========================================================= */
-
 .product-card-image {
   position: relative;
-
   width: 100%;
   height: 290px;
-
   overflow: hidden;
-
   background: #f5f7f8;
 
   img {
     width: 100%;
     height: 100%;
-
     display: block;
-
     object-fit: contain;
-
     padding: 16px;
-
     transition: transform 0.45s ease;
   }
 }
 
-/* =========================================================
-   BADGE
-========================================================= */
 
 .product-badge {
   position: absolute;
   top: 14px;
   left: 14px;
-
   z-index: 3;
-
   display: inline-flex;
   align-items: center;
-
   min-height: 27px;
   padding: 0 10px;
-
   border-radius: 6px;
-
   background: $primary-color;
   color: $primary-white;
-
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -2542,31 +2301,21 @@ footer {
   position: absolute;
   top: 14px;
   right: 14px;
-
   z-index: 3;
-
   width: 36px;
   height: 36px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: 0;
   border-radius: 50%;
-
   background: rgba($primary-white, 0.95);
   color: $primary-black;
-
   opacity: 0;
   visibility: hidden;
-
   transform: translateY(-5px);
-
   box-shadow: 0 4px 12px rgba($primary-black, 0.08);
-
   transition: all 0.25s ease;
-
   cursor: pointer;
 
   &:hover {
@@ -2575,58 +2324,37 @@ footer {
   }
 }
 
-/* =========================================================
-   VIEW BUTTON
-========================================================= */
 
 .product-view-button {
   position: absolute;
   right: 14px;
   bottom: 14px;
-
   z-index: 3;
-
   width: 40px;
   height: 40px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border-radius: 50%;
-
   background: $primary-black;
   color: $primary-white;
-
   opacity: 0;
   visibility: hidden;
-
   transform: translateY(8px);
-
   text-decoration: none;
-
   transition: all 0.25s ease;
-
   &:hover {
     background: $primary-color;
     color: $primary-white;
   }
 }
 
-/* =========================================================
-   PRODUCT CONTENT
-========================================================= */
-
 .product-card-content {
   padding: 17px 17px 19px;
-
   .product-category {
     display: block;
-
     margin-bottom: 6px;
-
     color: rgba($primary-black, 0.48);
-
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 1.1px;
@@ -2680,7 +2408,6 @@ footer {
 
   .product-old-price {
     color: rgba($primary-black, 0.4);
-
     font-size: 12px;
     font-weight: 500;
 
@@ -2694,17 +2421,13 @@ footer {
 
 .products-empty {
   padding: 60px 20px;
-
   text-align: center;
-
   background: $surface;
-
   border: 1px solid $border-soft;
   border-radius: $radius-md;
 
   h4 {
     margin: 0 0 7px;
-
     color: $primary-black;
     font-size: 18px;
   }
@@ -2864,31 +2587,6 @@ footer {
 .shop-page {
   padding-bottom: 80px;
   background: $surface;
-
-  .shop-breadcrumb {
-    padding: 28px 0 22px;
-
-    .breadcrumb {
-      margin: 0;
-
-      .breadcrumb-item {
-        font-size: 0.85rem;
-        font-weight: 500;
-
-        a {
-          color: rgba($primary-black, 0.5);
-
-          &:hover {
-            color: $primary-color;
-          }
-        }
-
-        &.active {
-          color: $primary-black;
-        }
-      }
-    }
-  }
 }
 
 /* =========================================================
@@ -2964,9 +2662,6 @@ footer {
   }
 }
 
-/* =========================================================
-   FILTER SIDEBAR
-========================================================= */
 
 .shop-filter-sidebar {
   position: sticky;
@@ -3030,13 +2725,10 @@ footer {
   }
 }
 
-/* =========================================================
-   FILTER GROUP
-========================================================= */
+
 
 .shop-filter-group {
   padding: 22px 0;
-
   border-bottom: 1px solid $border-soft;
 
   &:last-child {
@@ -3049,7 +2741,6 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 15px;
 
   h4 {
@@ -3063,33 +2754,22 @@ footer {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     min-width: 24px;
     height: 22px;
-
     padding: 0 7px;
-
     border-radius: 20px;
-
     background: rgba($primary-color, 0.1);
     color: $primary-color;
-
     font-size: 0.68rem;
     font-weight: 700;
   }
 }
 
-/* =========================================================
-   FILTER LIST
-========================================================= */
-
 .shop-filter-list {
   margin: 0;
   padding: 0;
-
   li {
     margin-bottom: 10px;
-
     &:last-child {
       margin-bottom: 0;
     }
@@ -3098,23 +2778,15 @@ footer {
 
 .shop-check {
   position: relative;
-
   display: flex;
   align-items: center;
-
   gap: 10px;
-
   width: 100%;
-
   margin: 0;
-
   color: rgba($primary-black, 0.65);
-
   font-size: 0.85rem;
   font-weight: 500;
-
   cursor: pointer;
-
   &:hover {
     color: $primary-black;
 
@@ -3125,13 +2797,10 @@ footer {
 
   input {
     position: absolute;
-
     width: 1px;
     height: 1px;
-
     opacity: 0;
     pointer-events: none;
-
     &:checked + .shop-check-box {
       background: $primary-color;
       border-color: $primary-color;
@@ -3146,69 +2815,46 @@ footer {
 
 .shop-check-box {
   position: relative;
-
   width: 18px;
   height: 18px;
-
   flex-shrink: 0;
-
   border: 1.5px solid rgba($primary-black, 0.18);
   border-radius: 5px;
-
   background: $primary-white;
-
   transition: all 0.2s ease;
-
   &::after {
     content: "";
-
     position: absolute;
-
     left: 5px;
     top: 2px;
-
     width: 5px;
     height: 9px;
-
     border-right: 2px solid $primary-white;
     border-bottom: 2px solid $primary-white;
-
     opacity: 0;
-
     transform: rotate(45deg) scale(0.5);
-
     transition: all 0.15s ease;
   }
 }
 
 .shop-check-name {
   overflow: hidden;
-
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* =========================================================
-   FILTER LOADING
-========================================================= */
 
 .shop-filter-loading {
   display: flex;
   flex-direction: column;
   gap: 12px;
-
   span {
     width: 80%;
     height: 12px;
-
     border-radius: 5px;
-
     background: #f0f2f3;
-
     &:nth-child(2) {
       width: 65%;
     }
-
     &:nth-child(3) {
       width: 75%;
     }
@@ -3217,66 +2863,44 @@ footer {
 
 .shop-filter-empty {
   margin: 0;
-
   color: rgba($primary-black, 0.4);
-
   font-size: 0.78rem;
 }
-
-/* =========================================================
-   SHOP TOOLBAR
-========================================================= */
 
 .shop-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   gap: 18px;
-
   margin-bottom: 18px;
 }
-
 .shop-search {
   position: relative;
-
   display: flex;
   align-items: center;
-
   width: 100%;
   max-width: 420px;
-
   height: 46px;
-
   border: 1px solid $border-soft;
   border-radius: $radius-sm;
-
   background: $surface-card;
 
   svg {
     margin-left: 14px;
-
     flex-shrink: 0;
-
     color: rgba($primary-black, 0.35);
   }
 
   input {
     width: 100%;
     height: 100%;
-
     padding: 0 12px;
-
     border: 0;
     outline: 0;
-
     background: transparent;
-
     color: $primary-black;
-
     font-family: $primary-font;
     font-size: 0.85rem;
-
     &::placeholder {
       color: rgba($primary-black, 0.4);
     }
@@ -3284,29 +2908,21 @@ footer {
 
   &:focus-within {
     border-color: $primary-color;
-
     box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
   }
 
   button {
     width: 32px;
     height: 32px;
-
     margin-right: 7px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border: 0;
     border-radius: 50%;
-
     background: rgba($primary-black, 0.05);
-
     color: rgba($primary-black, 0.5);
-
     cursor: pointer;
-
     &:hover {
       background: rgba($primary-black, 0.1);
       color: $primary-black;
@@ -3317,63 +2933,42 @@ footer {
 .shop-sort {
   display: flex;
   align-items: center;
-
   gap: 8px;
-
   label {
     color: rgba($primary-black, 0.45);
-
     font-size: 0.78rem;
     white-space: nowrap;
   }
 
   select {
     height: 42px;
-
     min-width: 150px;
-
     padding: 0 35px 0 12px;
-
     border: 1px solid $border-soft;
     border-radius: $radius-sm;
-
     background-color: $surface-card;
-
     color: $primary-black;
-
     font-family: $primary-font;
     font-size: 0.8rem;
-
     cursor: pointer;
-
     &:focus {
       outline: none;
-
       border-color: $primary-color;
-
       box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
     }
   }
 }
 
-/* =========================================================
-   ACTIVE FILTERS
-========================================================= */
-
 .shop-active-filters {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-
   gap: 7px;
-
   margin-bottom: 20px;
 
   .shop-active-label {
     margin-right: 4px;
-
     color: rgba($primary-black, 0.45);
-
     font-size: 0.75rem;
     font-weight: 600;
   }
@@ -3381,38 +2976,24 @@ footer {
   button {
     display: inline-flex;
     align-items: center;
-
     gap: 5px;
-
     padding: 6px 9px;
-
     border: 1px solid rgba($primary-color, 0.2);
     border-radius: 20px;
-
     background: rgba($primary-color, 0.07);
-
-    color: darken($primary-color, 15%);
-
+    color: color.adjust($primary-color, $lightness: -15%);
     font-family: $primary-font;
     font-size: 0.7rem;
     font-weight: 600;
-
     cursor: pointer;
-
     transition: 0.2s ease;
-
     &:hover {
       background: $primary-color;
       border-color: $primary-color;
-
       color: $primary-white;
     }
   }
 }
-
-/* =========================================================
-   MOBILE FILTER
-========================================================= */
 
 .shop-mobile-filter {
   display: none;
@@ -3422,32 +3003,21 @@ footer {
   display: none;
 }
 
-/* =========================================================
-   EMPTY STATE
-========================================================= */
-
 .shop-empty {
   min-height: 400px;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   .shop-empty-icon {
     width: 60px;
     height: 60px;
-
     margin-bottom: 18px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background: rgba($primary-color, 0.1);
-
     color: $primary-color;
   }
 
@@ -3460,59 +3030,42 @@ footer {
   }
 }
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
 @media (max-width: 991px) {
   .shop-header {
     margin-bottom: 25px;
   }
-
   .shop-filter-sidebar {
     position: static;
   }
-
   .shop-filter-mobile-header {
     display: flex;
   }
-
   .shop-mobile-filter {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     margin-bottom: 20px;
   }
 
   .shop-filter-toggle {
     display: inline-flex;
     align-items: center;
-
     gap: 8px;
-
     padding: 9px 16px;
-
     border: 1px solid $border-soft;
     border-radius: $radius-sm;
-
     background: $surface-card;
-
     color: $primary-black;
-
     font-family: $primary-font;
     font-size: 0.82rem;
     font-weight: 600;
-
     cursor: pointer;
   }
 
   .shop-clear-mobile {
     border: 0;
     background: transparent;
-
     color: $secondary-color;
-
     font-family: $primary-font;
     font-size: 0.78rem;
     font-weight: 600;
@@ -3527,15 +3080,11 @@ footer {
   .shop-header {
     align-items: flex-start;
     flex-direction: column;
-
     gap: 20px;
-
     padding: 20px 0 25px;
-
     h1 {
       font-size: 1.8rem;
     }
-
     p {
       font-size: 0.85rem;
     }
@@ -3543,7 +3092,6 @@ footer {
 
   .shop-result-count {
     padding-left: 0;
-
     border-left: 0;
   }
 
@@ -3558,7 +3106,6 @@ footer {
 
   .shop-sort {
     justify-content: space-between;
-
     select {
       flex: 1;
     }
@@ -3591,11 +3138,6 @@ footer {
 }
 
 
-/**** =========================================================
-      PRODUCT DETAIL PAGE (add to your main stylesheet,
-      reuses the same $variables already defined there)
-========================================================= ****/
-
 .pdp-page {
   padding-bottom: 80px;
   background: $surface;
@@ -3621,7 +3163,7 @@ footer {
   border-radius: $radius-lg;
   overflow: hidden;
   background: #f5f7f8;
-  border: 1px solid $border-soft;
+  border: 2px solid $border-soft;
 
   img {
     width: 100%;
@@ -3845,7 +3387,6 @@ footer {
   }
 }
 
-/* Related products */
 .pdp-related {
   h2 {
     font-size: 1.4rem;
@@ -3881,7 +3422,6 @@ footer {
   }
 }
 
-/* Responsive */
 @media (max-width: 991px) {
   .pdp-layout {
     grid-template-columns: 1fr;
@@ -3906,3 +3446,75 @@ footer {
     flex-wrap: wrap;
   }
 }
+
+// breadcrum
+
+.collection-breadcrumb {
+    background: #000;
+    padding: 52px 0 58px;
+}
+
+.collection-breadcrumb-content {
+    text-align: center;
+}
+
+.collection-breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 34px;
+    font-size: 14px;
+}
+
+.collection-breadcrumb-nav a {
+    color: $primary-white;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.collection-breadcrumb-nav a:hover {
+    color: $primary-color;
+    opacity: 0.75;
+}
+
+.collection-breadcrumb-nav span {
+    color: #ffffff;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.collection-breadcrumb-nav strong {
+    color: #ffffff;
+    font-weight: 400;
+}
+
+.collection-breadcrumb h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 44px;
+    line-height: 1.2;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 767px) {
+    .collection-breadcrumb {
+        padding: 38px 0 42px;
+    }
+
+    .collection-breadcrumb-nav {
+        margin-bottom: 24px;
+        font-size: 13px;
+    }
+
+    .collection-breadcrumb-nav span {
+        font-size: 18px;
+    }
+
+    .collection-breadcrumb h1 {
+        font-size: 30px;
+    }
+}
+

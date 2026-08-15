@@ -104,7 +104,7 @@ const Edit = () => {
 
   const fetchSizes = async () => {
     try {
-      const res = await fetch(`${apiurl}sizes`, {
+      const res = await fetch(`${apiurl}admin/sizes`, {
         headers: authHeaders(),
       });
 

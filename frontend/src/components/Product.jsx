@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   RotateCcw,
   Package,
+  ArrowUpRight,
 } from "lucide-react";
 
 import Layout from "./common/Layout";
@@ -18,6 +19,7 @@ const Product = () => {
   const { id } = useParams();
 
   const [product, setProduct] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [activeImage, setActiveImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -73,6 +75,25 @@ const Product = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${apiurl}get-categories`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      const result = await res.json();
+
+      if (result.status && Array.isArray(result.data)) {
+        setCategories(result.data);
+      }
+    } catch (error) {
+      console.error("Category Error:", error);
+    }
+  };
+
   const fetchRelatedProducts = async (categoryId) => {
     try {
       setLoadingRelated(true);
@@ -123,6 +144,7 @@ const Product = () => {
     const categoryId = product?.category?.id || product?.category_id;
 
     if (categoryId) {
+      fetchCategories();
       fetchRelatedProducts(categoryId);
     }
   }, [product]);
@@ -238,10 +260,13 @@ const Product = () => {
               <li className="breadcrumb-item">
                 <Link to="/">Home</Link>
               </li>
-
-              <li className="breadcrumb-item">
-                <Link to="/shop">Shop</Link>
-              </li>
+              {product?.category && (
+                <li className="breadcrumb-item">
+                  <Link to={`/collections/${product.category.slug}`}>
+                    {product.category.name}
+                  </Link>
+                </li>
+              )}
 
               <li className="breadcrumb-item active" aria-current="page">
                 {product.title}
@@ -570,58 +595,57 @@ const Product = () => {
                   : relatedProducts.map((item) => {
                       const relatedImage = item?.image_url || null;
 
-                      return (
-                        <div className="col-6 col-md-3" key={item.id}>
-                          <article className="product-card">
-                            <div className="product-card-image">
-                              {relatedImage ? (
-                                <img
-                                  src={relatedImage}
-                                  alt={item.title}
-                                  loading="lazy"
-                                />
-                              ) : (
-                                <div className="product-image-placeholder">
-                                  No Image
-                                </div>
-                              )}
-                            </div>
+  return (
+    <div className="col-6 col-md-3" key={item.id}>
+      <Link
+        to={`/product/${item.id}`}
+        className="text-decoration-none text-dark"
+      >
+        <article className="product-card">
+          <div className="product-card-image">
+            {relatedImage ? (
+              <img
+                src={relatedImage}
+                alt={item.title}
+                loading="lazy"
+              />
+            ) : (
+              <div className="product-image-placeholder">
+                No Image
+              </div>
+            )}
+            <span className="product-view-button">
+    <ArrowUpRight size={18} />
+  </span>
+          </div>
 
-                            <div className="product-card-content">
-                              <span className="product-category">
-                                {item?.category?.name ||
-                                  item?.category_name ||
-                                  "Product"}
-                              </span>
+          <div className="product-card-content">
+            <span className="product-category">
+              {item?.category?.name ||
+                item?.category_name ||
+                "Product"}
+            </span>
 
-                              <h3>
-                                <Link to={`/product/${item.id}`}>
-                                  {item.title}
-                                </Link>
-                              </h3>
+            <h3>{item.title}</h3>
 
-                              <div className="product-price">
-                                <span className="product-current-price">
-                                  ₹
-                                  {Number(item?.price || 0).toLocaleString(
-                                    "en-IN",
-                                  )}
-                                </span>
+            <div className="product-price">
+              <span className="product-current-price">
+                ₹
+                {Number(item?.price || 0).toLocaleString("en-IN")}
+              </span>
 
-                                {item?.compare_price &&
-                                  Number(item.compare_price) >
-                                    Number(item.price) && (
-                                    <span className="product-old-price">
-                                      ₹
-                                      {Number(
-                                        item.compare_price,
-                                      ).toLocaleString("en-IN")}
-                                    </span>
-                                  )}
-                              </div>
-                            </div>
-                          </article>
-                        </div>
+              {item?.compare_price &&
+                Number(item.compare_price) > Number(item.price) && (
+                  <span className="product-old-price">
+                    ₹
+                    {Number(item.compare_price).toLocaleString("en-IN")}
+                  </span>
+                )}
+            </div>
+          </div>
+        </article>
+      </Link>
+    </div>
                       );
                     })}
               </div>

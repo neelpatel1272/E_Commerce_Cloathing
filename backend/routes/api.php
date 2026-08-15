@@ -19,7 +19,9 @@ Route::get('get-categories',[FrontProductController::class, 'getcategories']);
 Route::get('get-brands',[FrontProductController::class, 'getbrands']);
 Route::get('get-products',[FrontProductController::class, 'getproducts']);
 Route::get('get-product/{id}',[FrontProductController::class, 'getProduct']);
-Route::get('sizes', [ProductController::class, 'getSizes']);
+
+Route::get('collections/{slug}', [FrontProductController::class, 'collection']);
+Route::get('sizes', [FrontProductController::class, 'getsizes']);
 
 
 
@@ -35,7 +37,7 @@ Route::group(['middleware' => 'auth:sanctum'], function (){
     Route::resource('brands', BrandController::class);
     Route::resource('products', ProductController::class);
 
-    Route::get('sizes', [SizeController::class, 'index']);
+    Route::get('admin/sizes', [SizeController::class, 'index']);
     Route::post('temp-images', [TempImageController::class, 'store']);
 
 
