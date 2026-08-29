@@ -30,6 +30,7 @@ Route::post('login', [FrontAccountController::class, 'authenticate']);
 Route::group(['middleware' => ['auth:sanctum','checkUserRole']], function (){
      Route::post('save-order',[FrontOrderController::class, 'saveOrder']);
      Route::get('get-orders',[FrontAccountController::class, 'getorders']);
+     Route::put('update-profile',[FrontAccountController::class, 'updateprofile']);
      Route::get('get-order-details/{id}',[FrontAccountController::class, 'getOrderDetails']);
 });
 

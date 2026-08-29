@@ -60,7 +60,7 @@ const MyOrders = () => {
             <div className="my-orders-page">
                 <div className="container">
                     <div className="details-top">
-                        <Link to="/account" className="back-link">
+                        <Link to="/account" className="back-link" >
                             <ArrowLeft size={16} />
                             Back to Account
                         </Link>

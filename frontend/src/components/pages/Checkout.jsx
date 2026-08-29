@@ -38,9 +38,13 @@ const Checkout = () => {
       try {
         const user = JSON.parse(userInfo);
 
-        setValue("name", user.name || "");
-        setValue("email", user.email || "");
-        setValue("mobile", user.mobile || "");
+      setValue("name", user.name || "");
+      setValue("email", user.email || "");
+      setValue("mobile", user.mobile || "");
+      setValue("address", user.address || "");
+      setValue("city", user.city || "");
+      setValue("state", user.state || "");
+      setValue("zip", user.zip || "");
       } catch (error) {
         console.error("User info error:", error);
       }

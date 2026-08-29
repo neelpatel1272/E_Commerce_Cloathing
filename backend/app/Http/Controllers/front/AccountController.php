@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AccountController extends Controller
 {
+
     public function register(Request $request){
         $rules =[
             'name' => 'required',
@@ -96,35 +97,80 @@ class AccountController extends Controller
     }
 
 
-public function getorders(Request $request)
-{
-    $orders = Order::with('items.product')
-        ->where('user_id', $request->user()->id)
-        ->orderBy('created_at', 'DESC')
-        ->get();
+    public function getorders(Request $request)
+    {
+        $orders = Order::with('items.product')
+            ->where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
-    if ($orders->isEmpty()) {
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => true,
+                'data' => []
+            ], 200);
+        }
+
+        $orders->each(function ($order) {
+            $order->items->transform(function ($item) {
+                if ($item->product && $item->product->image) {
+                    $item->image_url = asset('uploads/products/large/' . $item->product->image);
+                } else {
+                    $item->image_url = null;
+                }
+
+                return $item;
+            });
+        });
+
         return response()->json([
             'status' => true,
-            'data' => []
+            'data' => $orders
         ], 200);
     }
 
-    $orders->each(function ($order) {
-        $order->items->transform(function ($item) {
-            if ($item->product && $item->product->image) {
-                $item->image_url = asset('uploads/products/large/' . $item->product->image);
-            } else {
-                $item->image_url = null;
-            }
 
-            return $item;
-        });
-    });
+    public function updateprofile(Request $request){
 
-    return response()->json([
-        'status' => true,
-        'data' => $orders
-    ], 200);
-}
+        $user = User::find($request->user()->id);
+
+        if(empty($user)){
+            return response()->json([
+                    'status' => false,
+                    'message' => 'User is Not Found' 
+                ],404);
+        }
+
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,'.$request->user()->id.',id',
+            'address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'mobile' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => false,
+                'error' => $validator->errors() 
+            ],404);
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->city = $request->city;
+        $user->state = $request->state;
+        $user->zip = $request->zip;
+        $user->mobile = $request->mobile;
+        $user->address = $request->address;
+        $user->save();
+
+        return response()->json([
+                'status' => true,
+                'message' => 'Profile Updated Successfully'
+            ],200);
+
+    }
 }
