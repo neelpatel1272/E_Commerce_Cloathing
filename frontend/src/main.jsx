@@ -4,11 +4,20 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App.jsx'
 import './assets/css/style.scss'
 import { AdminAuthProvider } from './components/context/AdminAuth.jsx';
+import { AuthProvider } from './components/context/Auth.jsx';
+import { CartProvider } from './components/context/Cart.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AdminAuthProvider>
-      <App />
+      <AuthProvider>
+
+      
+      <CartProvider>
+          <App />
+      </CartProvider>
+
+      </AuthProvider>
     </AdminAuthProvider>
   </StrictMode>,
 )

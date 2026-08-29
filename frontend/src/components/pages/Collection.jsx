@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Heart, Eye, Search, SlidersHorizontal, X } from "lucide-react";
 
-import Layout from "./common/Layout";
-import { apiurl } from "./common/Http";
-import Breadcrumb from "./common/Breadcrumb";
+import Layout from "../common/Layout";
+import { apiurl } from "../common/Http";
+import Breadcrumb from "../common/Breadcrumb";
 
 const Collection = () => {
   const { slug } = useParams();
@@ -563,6 +563,13 @@ const Collection = () => {
                 <div className="row g-4">
                   {filteredProducts.map((product) => {
                     const productTitle = product?.title || "Product";
+                    // const price = Number(product?.price || 0);
+                    // const comparePrice = Number(product?.compare_price || 0);
+
+                    // const discount =
+                    //   comparePrice > price && price > 0
+                    //     ? Math.round(((comparePrice - price) / comparePrice) * 100)
+                    //     : 0;
 
                     const categoryName =
                       product?.category?.name || collection?.name || "Product";
@@ -576,6 +583,17 @@ const Collection = () => {
                                 Featured
                               </span>
                             )}
+
+                            {/* {discount > 0 && (
+                  <span
+                    className="product-badge"
+                    style={{
+                      top: product?.is_featured === "yes" ? "45px" : "10px",
+                    }}
+                  >
+                    {discount}% OFF
+                  </span>
+                )} */}
 
                             <button
                               type="button"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   Heart,
@@ -12,8 +12,9 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-import Layout from "./common/Layout";
-import { apiurl } from "./common/Http";
+import Layout from "../common/Layout";
+import { apiurl } from "../common/Http";
+import { CartContext } from "../context/Cart";
 
 const Product = () => {
   const { id } = useParams();
@@ -27,6 +28,7 @@ const Product = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingRelated, setLoadingRelated] = useState(true);
+  const { addTocart } = useContext(CartContext);
 
   const fetchProduct = async () => {
     try {
@@ -74,6 +76,7 @@ const Product = () => {
       setLoadingProduct(false);
     }
   };
+
 
   const fetchCategories = async () => {
     try {
@@ -134,6 +137,17 @@ const Product = () => {
       setLoadingRelated(false);
     }
   };
+
+  const handleAddToCart = () => {
+     if (!inStock) return;
+
+  if (productSizes.length > 0 && !selectedSize) {
+    return;
+  }
+
+  addTocart(product, selectedSize, quantity);
+
+  }
 
   useEffect(() => {
     fetchProduct();
@@ -283,7 +297,7 @@ const Product = () => {
 
                 {discount > 0 && (
                   <span
-                    className="product-badge"
+                    className="product-badge discount"
                     style={{
                       top: product?.is_featured === "yes" ? "45px" : "10px",
                     }}
@@ -325,12 +339,6 @@ const Product = () => {
 
               <h1 className="pdp-title">{product.title}</h1>
 
-              {product.sku && (
-                <div className="pdp-sku">
-                  SKU: <strong>{product.sku}</strong>
-                </div>
-              )}
-
               <div className="pdp-price-row">
                 <span className="pdp-current-price">
                   ₹{price.toLocaleString("en-IN")}
@@ -342,9 +350,9 @@ const Product = () => {
                   </span>
                 )}
 
-                {discount > 0 && (
+                {/* {discount > 0 && (
                   <span className="discount-text">{discount}% OFF</span>
-                )}
+                )} */}
 
                 <span
                   className={`status-pill ${inStock ? "active" : "inactive"}`}
@@ -353,6 +361,11 @@ const Product = () => {
                 </span>
               </div>
 
+              {/* {product.sku && (
+                <div className="pdp-sku">
+                  SKU: <span className="pdp-short-description">{product.sku}</span>
+                </div>
+              )} */}
               {product.short_description && (
                 <div
                   className="pdp-short-description"
@@ -381,13 +394,13 @@ const Product = () => {
                       const sizeName = size?.name ?? size?.title ?? size;
 
                       const isSelected =
-                        String(selectedSize) === String(sizeId);
+                         String(selectedSize?.id ?? selectedSize) === String(sizeId);
 
                       return (
                         <button
                           type="button"
                           key={sizeId || index}
-                          onClick={() => setSelectedSize(sizeId)}
+                          onClick={() => setSelectedSize(size)}
                           style={{
                             padding: "8px 18px",
                             border: isSelected
@@ -434,27 +447,27 @@ const Product = () => {
 
                 <button
                   type="button"
+                  onClick={() => handleAddToCart()}
                   className="btn btn-primary pdp-add-cart"
                   disabled={
                     !inStock || (productSizes.length > 0 && !selectedSize)
                   }
                 >
                   <ShoppingCart size={17} />
-
                   {!inStock
                     ? "Out of Stock"
                     : productSizes.length > 0 && !selectedSize
                       ? "Select Size"
                       : "Add to Cart"}
                 </button>
-
+{/* 
                 <button
                   type="button"
                   className="pdp-wishlist-btn"
                   aria-label="Add to wishlist"
                 >
                   <Heart size={18} />
-                </button>
+                </button> */}
               </div>
 
               {inStock && availableQty > 0 && (
@@ -529,20 +542,12 @@ const Product = () => {
                     <span>Category</span>
                     <span>{categoryName}</span>
                   </li>
-
-                  {product.sku && (
-                    <li>
-                      <span>SKU</span>
-                      <span>{product.sku}</span>
-                    </li>
-                  )}
-
-                  {product.barcode && (
+                  {/* {product.barcode && (
                     <li>
                       <span>Barcode</span>
                       <span>{product.barcode}</span>
                     </li>
-                  )}
+                  )} */}
 
                   <li>
                     <span>Availability</span>
@@ -568,10 +573,10 @@ const Product = () => {
                     </li>
                   )}
 
-                  <li>
+                  {/* <li>
                     <span>Featured</span>
                     <span>{product.is_featured === "yes" ? "Yes" : "No"}</span>
-                  </li>
+                  </li> */}
                 </ul>
               )}
             </div>
