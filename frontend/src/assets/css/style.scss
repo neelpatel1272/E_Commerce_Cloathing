@@ -5383,50 +5383,65 @@ footer {
 //order details page (Admin)
 
 .order-details-page {
-  background: $surface;
   min-height: 100vh;
+  background: #f3f6fa;
 
   .order-hero {
     position: relative;
     overflow: hidden;
-    background: $surface-card;
-    border: 1px solid $border-soft;
-    border-radius: $radius-lg;
-    box-shadow: $shadow-card;
     margin-bottom: 24px;
     padding: 30px 32px 28px;
+    border: 1px solid #263c5b;
+    border-radius: $radius-lg;
+    background: linear-gradient(135deg, #14243d 0%, #1d4169 100%);
+    box-shadow:
+      0 8px 20px rgba(20, 36, 61, 0.12),
+      0 20px 40px rgba(20, 36, 61, 0.08);
 
     &::before {
-      content: "";
       position: absolute;
-      top: -170px;
-      right: -110px;
-      width: 340px;
-      height: 340px;
+      top: -150px;
+      right: -100px;
+      width: 390px;
+      height: 390px;
       border-radius: 50%;
-      background: rgba($primary-color, 0.055);
+      background: rgba(91, 174, 255, 0.08);
+      content: "";
       pointer-events: none;
     }
 
     &::after {
-      content: "";
       position: absolute;
-      bottom: -150px;
-      left: 38%;
-      width: 280px;
-      height: 280px;
+      right: 280px;
+      bottom: -220px;
+      width: 430px;
+      height: 430px;
       border-radius: 50%;
-      background: rgba($secondary-color, 0.025);
+      background: rgba(255, 255, 255, 0.025);
+      content: "";
       pointer-events: none;
     }
 
-    > * {
-      position: relative;
-      z-index: 1;
+    h1 {
+      color: #ffffff;
+    }
+
+    .order-label {
+      color: #73c2ff;
+    }
+
+    .hero-meta {
+      color: #b8c8d9;
+
+      svg {
+        color: #5bb5f5;
+      }
     }
   }
 
   .hero-top {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -5440,10 +5455,10 @@ footer {
     gap: 9px;
     min-height: 44px;
     padding: 0 16px;
-    border: 1px solid rgba($primary-black, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: $radius-sm;
-    background: rgba($primary-white, 0.9);
-    color: $tertiary-color;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
@@ -5454,10 +5469,10 @@ footer {
     }
 
     &:hover {
-      color: $primary-color;
-      border-color: rgba($primary-color, 0.3);
-      background: $primary-white;
-      box-shadow: 0 5px 15px rgba($primary-black, 0.06);
+      color: #ffffff;
+      border-color: rgba(91, 181, 245, 0.5);
+      background: rgba(255, 255, 255, 0.13);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
 
       svg {
         transform: translateX(-3px);
@@ -5479,15 +5494,15 @@ footer {
     min-width: 64px;
     height: 40px;
     padding: 0 13px;
-    border: 1px solid rgba($primary-black, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.13);
     border-radius: 20px;
-    background: rgba($primary-white, 0.8);
-    color: #718096;
+    background: rgba(255, 255, 255, 0.08);
+    color: #d5e0eb;
     font-size: 13px;
     font-weight: 700;
 
     svg {
-      opacity: 0.8;
+      opacity: 0.85;
     }
   }
 
@@ -5503,23 +5518,23 @@ footer {
     text-transform: capitalize;
 
     &.pending {
-      color: #d68a00;
-      background: rgba(#f5a900, 0.11);
+      color: #f2b84b;
+      background: rgba(242, 184, 75, 0.14);
     }
 
     &.shipped {
-      color: $secondary-color;
-      background: rgba($secondary-color, 0.1);
+      color: #6bb8ff;
+      background: rgba(107, 184, 255, 0.14);
     }
 
     &.delivered {
-      color: #1b9b68;
-      background: rgba(#1b9b68, 0.1);
+      color: #5dd19e;
+      background: rgba(93, 209, 158, 0.14);
     }
 
     &.cancelled {
-      color: #d63f52;
-      background: rgba(#e0475a, 0.1);
+      color: #f27c8a;
+      background: rgba(242, 124, 138, 0.14);
     }
 
     svg {
@@ -5528,6 +5543,8 @@ footer {
   }
 
   .hero-content {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -5540,7 +5557,7 @@ footer {
 
   .order-label {
     margin-bottom: 9px;
-    color: $primary-color;
+    color: #65b9f3;
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 2px;
@@ -5548,14 +5565,14 @@ footer {
 
   .hero-content h1 {
     margin: 0 0 13px;
-    color: $primary-black;
+    color: #ffffff;
     font-size: 36px;
     line-height: 1.15;
     font-weight: 750;
     letter-spacing: -1px;
 
     span {
-      color: $tertiary-color;
+      color: #a9bfd5;
     }
   }
 
@@ -5564,7 +5581,7 @@ footer {
     align-items: center;
     flex-wrap: wrap;
     gap: 11px;
-    color: #83909f;
+    color: #adbdce;
     font-size: 13px;
     font-weight: 500;
 
@@ -5575,7 +5592,7 @@ footer {
       white-space: nowrap;
 
       svg {
-        color: $primary-color;
+        color: #62b9f5;
       }
     }
 
@@ -5583,66 +5600,46 @@ footer {
       width: 3px;
       height: 3px;
       border-radius: 50%;
-      background: #cbd2d9;
+      background: #6f8194;
     }
   }
 
   .hero-total {
     position: relative;
-    min-width: 238px;
-    padding: 20px 23px;
-    border: 1px solid rgba($primary-color, 0.2);
-    border-radius: $radius-md;
-    background: linear-gradient(
-      135deg,
-      rgba($primary-color, 0.045),
-      rgba($secondary-color, 0.035)
-    );
-
-    &::after {
-      content: "";
-      position: absolute;
-      top: -45px;
-      right: -45px;
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      background: rgba($primary-color, 0.045);
-    }
-
-    span,
-    strong,
-    small {
-      position: relative;
-      z-index: 1;
-      display: block;
-    }
+    z-index: 2;
+    min-width: 282px;
+    padding: 24px 26px;
+    border: 1px solid rgba(107, 190, 250, 0.25);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.065);
+    backdrop-filter: blur(8px);
 
     span {
+      display: block;
       margin-bottom: 7px;
-      color: #7d8997;
+      color: #adbdce;
       font-size: 12px;
       font-weight: 600;
     }
 
     strong {
-      margin-bottom: 7px;
-      color: $primary-black;
-      font-size: 28px;
-      line-height: 1.1;
+      display: block;
+      margin-bottom: 6px;
+      color: #ffffff;
+      font-size: 29px;
       font-weight: 800;
-      letter-spacing: -0.7px;
     }
 
     small {
-      color: #8d99a7;
+      color: #75bdf0;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
     }
   }
 
   .order-progress {
     position: relative;
+    z-index: 2;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     margin-top: 52px;
@@ -5657,17 +5654,13 @@ footer {
     height: 4px;
     overflow: hidden;
     border-radius: 10px;
-    background: #e9eef2;
+    background: rgba(255, 255, 255, 0.13);
   }
 
   .progress-filled {
     height: 100%;
     border-radius: inherit;
-    background: linear-gradient(
-      90deg,
-      $primary-color,
-      $secondary-color
-    );
+    background: linear-gradient(90deg, $primary-color, #68b9f5);
     transition: width 0.4s ease;
   }
 
@@ -5698,29 +5691,29 @@ footer {
       flex: 0 0 48px;
       width: 48px;
       height: 48px;
-      border: 3px solid $surface-card;
+      border: 3px solid #172941;
       border-radius: 50%;
-      background: #f7f9fa;
-      color: #aeb8c1;
-      box-shadow: 0 0 0 2px #e5ebef;
+      background: #2b405a;
+      color: #8193a7;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
       transition: all 0.25s ease;
     }
 
     &.active {
       .step-circle {
-        color: $primary-white;
+        color: #ffffff;
         background: $primary-color;
         box-shadow:
-          0 0 0 2px rgba($primary-color, 0.25),
-          0 8px 20px rgba($primary-color, 0.2);
+          0 0 0 2px rgba($primary-color, 0.35),
+          0 8px 20px rgba($primary-color, 0.25);
       }
 
       strong {
-        color: $primary-black;
+        color: #ffffff;
       }
 
       span {
-        color: #8995a3;
+        color: #afbfce;
       }
     }
 
@@ -5731,14 +5724,14 @@ footer {
     }
 
     strong {
-      color: #a0aab5;
+      color: #7f91a4;
       font-size: 14px;
       font-weight: 700;
       line-height: 1.2;
     }
 
     span {
-      color: #b0bac4;
+      color: #687b90;
       font-size: 11px;
       font-weight: 500;
     }
@@ -5750,9 +5743,9 @@ footer {
     gap: 13px;
     margin-top: 38px;
     padding: 15px 17px;
-    border: 1px solid rgba(#e0475a, 0.12);
+    border: 1px solid rgba(#e0475a, 0.18);
     border-radius: $radius-md;
-    background: rgba(#e0475a, 0.045);
+    background: rgba(#e0475a, 0.08);
 
     .cancelled-icon {
       display: flex;
@@ -5762,8 +5755,8 @@ footer {
       height: 40px;
       flex: 0 0 40px;
       border-radius: 50%;
-      color: #e0475a;
-      background: rgba(#e0475a, 0.1);
+      color: #f27c8a;
+      background: rgba(#e0475a, 0.13);
     }
 
     div:last-child {
@@ -5773,13 +5766,13 @@ footer {
     }
 
     strong {
-      color: #c83d50;
+      color: #f27c8a;
       font-size: 13px;
       font-weight: 700;
     }
 
     span {
-      color: #9b747a;
+      color: #c59ba2;
       font-size: 12px;
     }
   }
@@ -5788,10 +5781,12 @@ footer {
   .status-update-card,
   .summary-card,
   .quick-card {
-    border: 1px solid $border-soft;
+    border: 1px solid #dfe5ec;
     border-radius: $radius-lg;
-    background: $surface-card;
-    box-shadow: $shadow-card;
+    background: #ffffff;
+    box-shadow:
+      0 3px 10px rgba(22, 38, 58, 0.035),
+      0 12px 30px rgba(22, 38, 58, 0.055);
   }
 
   .premium-card {
@@ -5803,8 +5798,8 @@ footer {
 
     &:hover {
       box-shadow:
-        0 3px 12px rgba($primary-black, 0.04),
-        0 15px 32px rgba($primary-black, 0.06);
+        0 4px 12px rgba(22, 38, 58, 0.045),
+        0 15px 32px rgba(22, 38, 58, 0.07);
     }
   }
 
@@ -5824,30 +5819,30 @@ footer {
       border-radius: 11px;
 
       &.purple {
-        color: #7755d9;
-        background: rgba(#7755d9, 0.1);
+        color: #6757c8;
+        background: #f0edff;
       }
 
       &.blue {
-        color: $secondary-color;
-        background: rgba($secondary-color, 0.1);
+        color: $primary-color;
+        background: #eaf4ff;
       }
 
       &.orange {
-        color: #e68a27;
-        background: rgba(#e68a27, 0.1);
+        color: #df8b32;
+        background: #fff2e3;
       }
     }
 
     h3 {
       margin: 0 0 4px;
-      color: $primary-black;
+      color: #172235;
       font-size: 16px;
       font-weight: 700;
     }
 
     span {
-      color: #929daa;
+      color: #8d99a7;
       font-size: 12px;
     }
   }
@@ -5864,9 +5859,9 @@ footer {
     gap: 11px;
     min-width: 0;
     padding: 14px;
-    border: 1px solid rgba($primary-black, 0.055);
+    border: 1px solid #e2e8ef;
     border-radius: $radius-sm;
-    background: #fbfcfd;
+    background: #f6f9fc;
 
     .item-icon {
       display: flex;
@@ -5876,8 +5871,8 @@ footer {
       height: 34px;
       flex: 0 0 34px;
       border-radius: 9px;
-      color: $tertiary-color;
-      background: #f0f4f6;
+      color: $primary-color;
+      background: #e8f3ff;
     }
 
     .item-content {
@@ -5887,7 +5882,7 @@ footer {
     label {
       display: block;
       margin-bottom: 4px;
-      color: #9aa4af;
+      color: #9aa5b1;
       font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
@@ -5897,7 +5892,7 @@ footer {
     strong {
       display: block;
       overflow: hidden;
-      color: $primary-black;
+      color: #172235;
       font-size: 13px;
       font-weight: 650;
       text-overflow: ellipsis;
@@ -5909,9 +5904,9 @@ footer {
     display: flex;
     gap: 17px;
     padding: 18px;
+    border: 1px solid #dfe8f1;
     border-radius: $radius-md;
-    background: #fafcfd;
-    border: 1px solid rgba($primary-black, 0.05);
+    background: #f5f9fd;
   }
 
   .shipping-map-icon {
@@ -5922,8 +5917,8 @@ footer {
     height: 46px;
     flex: 0 0 46px;
     border-radius: 12px;
-    color: $secondary-color;
-    background: rgba($secondary-color, 0.09);
+    color: $primary-color;
+    background: #e7f2ff;
   }
 
   .shipping-details {
@@ -5931,14 +5926,14 @@ footer {
 
     .shipping-name {
       margin-bottom: 6px;
-      color: $primary-black;
+      color: #172235;
       font-size: 14px;
       font-weight: 700;
     }
 
     p {
       margin: 0;
-      color: #788694;
+      color: #748294;
       font-size: 13px;
       line-height: 1.7;
     }
@@ -5949,7 +5944,7 @@ footer {
     align-items: center;
     gap: 6px;
     margin-top: 9px;
-    color: $tertiary-color;
+    color: $primary-color;
     font-size: 12px;
     font-weight: 600;
   }
@@ -5967,8 +5962,8 @@ footer {
   .items-count {
     padding: 6px 10px;
     border-radius: 20px;
-    color: $secondary-color;
-    background: rgba($secondary-color, 0.08);
+    color: $primary-color;
+    background: #eaf4ff;
     font-size: 11px !important;
     font-weight: 700;
   }
@@ -5983,9 +5978,10 @@ footer {
 
   .products-header {
     padding: 11px 13px;
+    border: 1px solid #e1e7ee;
     border-radius: 8px;
-    background: #f7f9fa;
-    color: #9aa5af;
+    background: #f2f6fa;
+    color: #8e99a6;
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
@@ -5998,7 +5994,12 @@ footer {
 
   .product-item {
     padding: 17px 13px;
-    border-bottom: 1px solid rgba($primary-black, 0.06);
+    border-bottom: 1px solid #e7ecf1;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #f9fbfd;
+    }
 
     &:last-child {
       border-bottom: 0;
@@ -6020,10 +6021,10 @@ footer {
     height: 58px;
     flex: 0 0 58px;
     overflow: hidden;
-    border: 1px solid rgba($primary-black, 0.06);
+    border: 1px solid #e0e6ed;
     border-radius: 10px;
-    color: #aab4bd;
-    background: #f7f9fa;
+    color: #9aa6b2;
+    background: #f4f7fa;
 
     img {
       width: 100%;
@@ -6044,7 +6045,7 @@ footer {
     strong {
       overflow: hidden;
       margin-bottom: 5px;
-      color: $primary-black;
+      color: #172235;
       font-size: 13px;
       font-weight: 700;
       text-overflow: ellipsis;
@@ -6053,12 +6054,12 @@ footer {
 
     small {
       margin-bottom: 3px;
-      color: #9ca7b1;
+      color: #9ba6b2;
       font-size: 10px;
     }
 
     span {
-      color: #7e8b98;
+      color: #7c8998;
       font-size: 11px;
     }
   }
@@ -6067,7 +6068,7 @@ footer {
     text-align: right;
 
     strong {
-      color: $primary-black;
+      color: #172235;
       font-size: 13px;
       font-weight: 700;
     }
@@ -6077,8 +6078,9 @@ footer {
     }
   }
 
+  .product-column.product-total strong,
   .product-column.total strong {
-    color: $secondary-color;
+    color: $primary-color;
   }
 
   .status-update-card {
@@ -6091,7 +6093,8 @@ footer {
     align-items: center;
     gap: 12px;
     padding: 21px 21px 18px;
-    border-bottom: 1px solid rgba($primary-black, 0.06);
+    border-bottom: 1px solid #e2e8ef;
+    background: #f5f8fc;
 
     .status-update-icon {
       display: flex;
@@ -6100,19 +6103,20 @@ footer {
       width: 41px;
       height: 41px;
       border-radius: 11px;
-      color: $primary-white;
+      color: #ffffff;
       background: $primary-color;
+      box-shadow: 0 5px 12px rgba($primary-color, 0.2);
     }
 
     h3 {
       margin: 0 0 3px;
-      color: $primary-black;
+      color: #172235;
       font-size: 15px;
       font-weight: 700;
     }
 
     span {
-      color: #98a3ae;
+      color: #8d99a6;
       font-size: 11px;
     }
   }
@@ -6127,7 +6131,7 @@ footer {
     align-items: center;
     gap: 7px;
     margin-bottom: 11px;
-    color: $primary-black;
+    color: #172235;
     font-size: 12px;
     font-weight: 700;
 
@@ -6148,16 +6152,16 @@ footer {
     width: 100%;
     min-height: 62px;
     padding: 9px 10px;
-    border: 1px solid rgba($primary-black, 0.07);
+    border: 1px solid #e0e6ed;
     border-radius: 10px;
-    background: $primary-white;
+    background: #f8fafc;
     text-align: left;
     cursor: pointer;
     transition: all 0.2s ease;
 
     &:hover:not(:disabled) {
-      border-color: rgba($primary-color, 0.25);
-      background: #fbfefe;
+      border-color: rgba($primary-color, 0.3);
+      background: #f3f8fd;
       transform: translateY(-1px);
     }
 
@@ -6167,8 +6171,8 @@ footer {
     }
 
     &.selected {
-      border-color: rgba($primary-color, 0.4);
-      background: rgba($primary-color, 0.045);
+      border-color: rgba($primary-color, 0.45);
+      background: #eef6ff;
       box-shadow: inset 3px 0 0 $primary-color;
     }
   }
@@ -6184,23 +6188,23 @@ footer {
     border-radius: 9px;
 
     &.pending {
-      color: #db9300;
-      background: rgba(#f5a900, 0.1);
+      color: #d99416;
+      background: #fff4dc;
     }
 
     &.shipped {
-      color: $secondary-color;
-      background: rgba($secondary-color, 0.1);
+      color: #438fe0;
+      background: #eaf4ff;
     }
 
     &.delivered {
-      color: #1b9b68;
-      background: rgba(#1b9b68, 0.1);
+      color: #1d9a6a;
+      background: #e5f6ef;
     }
 
     &.cancelled {
-      color: #df4759;
-      background: rgba(#e0475a, 0.1);
+      color: #dc5061;
+      background: #fcebed;
     }
   }
 
@@ -6215,14 +6219,14 @@ footer {
 
     strong {
       margin-bottom: 3px;
-      color: $primary-black;
+      color: #172235;
       font-size: 12px;
       font-weight: 700;
     }
 
     small {
       overflow: hidden;
-      color: #9aa5af;
+      color: #97a3af;
       font-size: 10px;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -6234,7 +6238,7 @@ footer {
     align-items: center;
     justify-content: center;
     margin-left: 7px;
-    color: #c3ccd3;
+    color: #c1cbd5;
 
     svg {
       color: $primary-color;
@@ -6244,7 +6248,7 @@ footer {
   .payment-status-section {
     margin: 0 21px;
     padding: 18px 0;
-    border-top: 1px solid rgba($primary-black, 0.06);
+    border-top: 1px solid #e6ebf0;
   }
 
   .payment-status-title {
@@ -6253,17 +6257,17 @@ footer {
 
   .payment-status-select {
     min-height: 44px;
-    border: 1px solid rgba($primary-black, 0.09);
+    border: 1px solid #dfe5ec;
     border-radius: 9px;
-    color: $primary-black;
-    background-color: $primary-white;
+    color: #172235;
+    background-color: #f9fbfd;
     font-size: 12px;
     font-weight: 600;
     box-shadow: none;
 
     &:focus {
-      border-color: rgba($primary-color, 0.5);
-      box-shadow: 0 0 0 3px rgba($primary-color, 0.08);
+      border-color: rgba($primary-color, 0.55);
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.09);
     }
   }
 
@@ -6277,18 +6281,18 @@ footer {
     margin: 0 21px 21px;
     border: 0;
     border-radius: 9px;
-    color: $primary-white;
+    color: #ffffff;
     background: $primary-color;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 7px 18px rgba($primary-color, 0.18);
+    box-shadow: 0 7px 18px rgba($primary-color, 0.2);
     transition: all 0.2s ease;
 
     &:hover:not(:disabled) {
       background: color.adjust($primary-color, $lightness: -6%);
       transform: translateY(-1px);
-      box-shadow: 0 9px 22px rgba($primary-color, 0.23);
+      box-shadow: 0 9px 22px rgba($primary-color, 0.25);
     }
 
     &:disabled {
@@ -6308,7 +6312,8 @@ footer {
     align-items: center;
     gap: 12px;
     padding: 21px;
-    border-bottom: 1px solid rgba($primary-black, 0.06);
+    border-bottom: 1px solid #e4e9ee;
+    background: #f6f8fb;
 
     .summary-icon {
       display: flex;
@@ -6317,19 +6322,19 @@ footer {
       width: 41px;
       height: 41px;
       border-radius: 11px;
-      color: $secondary-color;
-      background: rgba($secondary-color, 0.1);
+      color: $primary-color;
+      background: #e8f3ff;
     }
 
     h3 {
       margin: 0 0 3px;
-      color: $primary-black;
+      color: #172235;
       font-size: 15px;
       font-weight: 700;
     }
 
     span {
-      color: #98a3ae;
+      color: #909ba7;
       font-size: 11px;
     }
   }
@@ -6344,24 +6349,24 @@ footer {
     justify-content: space-between;
     gap: 15px;
     padding: 7px 0;
-    color: #7f8b97;
+    color: #7d8997;
     font-size: 12px;
 
     strong {
-      color: $primary-black;
+      color: #172235;
       font-size: 12px;
       font-weight: 700;
 
       &.free {
-        color: #1b9b68;
+        color: #1d9a6a;
       }
     }
 
     &.discount {
-      color: #1b9b68;
+      color: #1d9a6a;
 
       strong {
-        color: #1b9b68;
+        color: #1d9a6a;
       }
     }
   }
@@ -6369,7 +6374,7 @@ footer {
   .summary-divider {
     height: 1px;
     margin: 12px 0;
-    background: rgba($primary-black, 0.07);
+    background: #e3e8ed;
   }
 
   .grand-total {
@@ -6385,13 +6390,13 @@ footer {
 
     span {
       margin-bottom: 3px;
-      color: $primary-black;
+      color: #172235;
       font-size: 13px;
       font-weight: 750;
     }
 
     small {
-      color: #9ca7b1;
+      color: #9aa5b0;
       font-size: 10px;
     }
 
@@ -6409,7 +6414,7 @@ footer {
     margin: 0 21px 21px;
     padding: 13px;
     border-radius: 10px;
-    background: rgba(#1b9b68, 0.07);
+    background: #eaf7f1;
 
     .payment-check {
       display: flex;
@@ -6419,8 +6424,8 @@ footer {
       height: 35px;
       flex: 0 0 35px;
       border-radius: 50%;
-      color: #1b9b68;
-      background: rgba(#1b9b68, 0.12);
+      color: #1d9a6a;
+      background: #d9f0e6;
     }
 
     strong,
@@ -6430,31 +6435,31 @@ footer {
 
     strong {
       margin-bottom: 3px;
-      color: #227b59;
+      color: #267a5b;
       font-size: 11px;
       font-weight: 700;
     }
 
     span {
-      color: #6d9584;
+      color: #6c9584;
       font-size: 10px;
       text-transform: capitalize;
     }
 
     &.payment-pending {
-      background: rgba(#f5a900, 0.07);
+      background: #fff8e9;
 
       .payment-check {
-        color: #db9300;
-        background: rgba(#f5a900, 0.12);
+        color: #d99416;
+        background: #ffedc5;
       }
 
       strong {
-        color: #a87813;
+        color: #a67818;
       }
 
       span {
-        color: #a89568;
+        color: #a58d5b;
       }
     }
   }
@@ -6468,7 +6473,7 @@ footer {
 
     h3 {
       margin: 0;
-      color: $primary-black;
+      color: #172235;
       font-size: 15px;
       font-weight: 700;
     }
@@ -6480,15 +6485,15 @@ footer {
     justify-content: space-between;
     gap: 15px;
     padding: 12px 0;
-    border-bottom: 1px solid rgba($primary-black, 0.055);
+    border-bottom: 1px solid #e7ebf0;
 
     &:last-child {
-      border-bottom: 0;
       padding-bottom: 0;
+      border-bottom: 0;
     }
 
     span:first-child {
-      color: #929da8;
+      color: #8c98a5;
       font-size: 11px;
       font-weight: 500;
     }
@@ -6496,7 +6501,7 @@ footer {
     > strong {
       max-width: 60%;
       overflow: hidden;
-      color: $primary-black;
+      color: #172235;
       font-size: 11px;
       font-weight: 700;
       text-align: right;
@@ -6516,23 +6521,23 @@ footer {
     text-transform: capitalize;
 
     &.pending {
-      color: #d68a00 !important;
-      background: rgba(#f5a900, 0.1);
+      color: #d99416 !important;
+      background: #fff3d9;
     }
 
     &.shipped {
-      color: $secondary-color !important;
-      background: rgba($secondary-color, 0.1);
+      color: #438fe0 !important;
+      background: #eaf4ff;
     }
 
     &.delivered {
-      color: #1b9b68 !important;
-      background: rgba(#1b9b68, 0.1);
+      color: #1d9a6a !important;
+      background: #e5f6ef;
     }
 
     &.cancelled {
-      color: #d63f52 !important;
-      background: rgba(#e0475a, 0.1);
+      color: #dc5061 !important;
+      background: #fcebed;
     }
   }
 
@@ -6546,7 +6551,7 @@ footer {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    color: #8995a1;
+    color: #8995a2;
     font-size: 12px;
     font-weight: 600;
     text-decoration: none;
@@ -6571,10 +6576,12 @@ footer {
     justify-content: center;
     min-height: 70vh;
     padding: 40px;
-    border: 1px solid $border-soft;
+    border: 1px solid #dfe5ec;
     border-radius: $radius-lg;
-    background: $surface-card;
-    box-shadow: $shadow-card;
+    background: #ffffff;
+    box-shadow:
+      0 3px 10px rgba(22, 38, 58, 0.035),
+      0 12px 30px rgba(22, 38, 58, 0.055);
     text-align: center;
 
     .empty-icon {
@@ -6585,13 +6592,13 @@ footer {
       height: 80px;
       margin-bottom: 20px;
       border-radius: 50%;
-      color: #9aa5af;
-      background: #f2f5f7;
+      color: #94a0ad;
+      background: #f1f4f8;
     }
 
     h3 {
       margin: 0 0 8px;
-      color: $primary-black;
+      color: #172235;
       font-size: 20px;
       font-weight: 750;
     }
@@ -6599,7 +6606,7 @@ footer {
     p {
       max-width: 420px;
       margin: 0 0 22px;
-      color: #8c98a4;
+      color: #8b97a4;
       font-size: 13px;
       line-height: 1.6;
     }
@@ -6611,7 +6618,7 @@ footer {
       min-height: 42px;
       padding: 0 16px;
       border-radius: 9px;
-      color: $primary-white;
+      color: #ffffff;
       background: $primary-color;
       font-size: 12px;
       font-weight: 700;
@@ -6619,7 +6626,7 @@ footer {
       transition: all 0.2s ease;
 
       &:hover {
-        color: $primary-white;
+        color: #ffffff;
         transform: translateY(-1px);
       }
     }
@@ -6689,7 +6696,7 @@ footer {
 
       .mobile-label {
         display: inline;
-        color: #9aa5af;
+        color: #9aa5b1;
         font-size: 10px;
         font-weight: 600;
         text-transform: uppercase;

@@ -43,6 +43,8 @@ class ProductController extends Controller
             $product->image_url = $product->image
                 ? asset('uploads/products/large/' . $product->image)
                 : null;
+            
+            $this->flattenSizeQty($product);
 
             return $product;
         });
@@ -120,6 +122,7 @@ class ProductController extends Controller
             $product->image_url = $product->image
                 ? asset('uploads/products/large/' . $product->image)
                 : null;
+             $this->flattenSizeQty($product);
 
             return $product;
         });
@@ -148,6 +151,7 @@ class ProductController extends Controller
                 ? asset('uploads/products/large/' . $product->image)
                 : null;
 
+             $this->flattenSizeQty($product);
             return $product;
         });
 
@@ -174,6 +178,7 @@ class ProductController extends Controller
             $product->image_url = $product->image
                 ? asset('uploads/products/large/' . $product->image)
                 : null;
+                 $this->flattenSizeQty($product);
 
             return $product;
         });
@@ -239,6 +244,8 @@ class ProductController extends Controller
             return $image;
         });
 
+        $this->flattenSizeQty($product);
+
         return response()->json([
             'status' => true,
             'data' => $product,
@@ -254,4 +261,15 @@ class ProductController extends Controller
             'data' => $sizes,
         ], 200);
     }
+
+     private function flattenSizeQty($product)
+        {
+            $product->sizes->transform(function ($size) {
+                $size->qty = $size->pivot->qty ?? 0;
+                unset($size->pivot);
+                return $size;
+            });
+
+            return $product;
+        }
 }

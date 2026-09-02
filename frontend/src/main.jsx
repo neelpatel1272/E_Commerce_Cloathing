@@ -6,9 +6,11 @@ import './assets/css/style.scss'
 import { AdminAuthProvider } from './components/context/AdminAuth.jsx';
 import { AuthProvider } from './components/context/Auth.jsx';
 import { CartProvider } from './components/context/Cart.jsx';
+import CustomCursor from './components/common/CustomCursor.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <CustomCursor />
     <AdminAuthProvider>
       <AuthProvider>
 

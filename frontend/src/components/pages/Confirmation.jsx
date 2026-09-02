@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { apiurl, usertoken } from "../common/Http";
 import { toast } from "react-toastify";
 import Loader from "../common/Loader";
+
 import { Link, useParams } from "react-router-dom";
 import Layout from "../common/Layout";
+import { CartContext } from "../context/Cart";
 
 const Confirmation = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState([]);
+  const { clearCart } = useContext(CartContext);
 
   const params = useParams();
 
@@ -28,6 +31,7 @@ const Confirmation = () => {
       if (response.ok && result.data) {
         setOrder(result.data);
         setItems(result.data.items || []);
+        clearCart();
       } else {
         setOrder(null);
         setItems([]);
@@ -236,7 +240,7 @@ const Confirmation = () => {
               </div>
 
               <div className="text-center mt-3">
-                <Link to={`/order/${order.id}`} className="btn btn-primary">
+                <Link to={`/orders/${order.id}`} className="btn btn-primary">
                   View Order Details
                 </Link>
 

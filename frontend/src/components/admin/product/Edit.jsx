@@ -22,6 +22,7 @@ const Edit = () => {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [sizes, setSizes] = useState([]);
+  const [sizeQtys, setSizeQtys] = useState({});
   const [gallery, setGallery] = useState([]);
   const [deleteImages, setDeleteImages] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -43,6 +44,7 @@ const Edit = () => {
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -58,13 +60,11 @@ const Edit = () => {
       barcode: "",
       status: "1",
       is_featured: "no",
-      sizes: [],
     },
   });
 
   const statusValue = watch("status");
   const featuredValue = watch("is_featured");
-  const selectedSizes = watch("sizes") || [];
 
   const fetchCategories = async () => {
     try {
@@ -136,10 +136,12 @@ const Edit = () => {
       }
 
       const product = result.data;
-
-      const productSizes = Array.isArray(product.sizes) ? product.sizes : [];
-
-      const selectedSizeIds = productSizes.map((size) => String(size.id));
+        const productSizes = Array.isArray(product.sizes) ? product.sizes : [];
+        const prefillSizeQtys = {};
+        productSizes.forEach((size) => {
+          prefillSizeQtys[size.id] = size.pivot?.qty ?? 0;
+        });
+        setSizeQtys(prefillSizeQtys);
 
       reset({
         title: product.title || "",
@@ -159,7 +161,6 @@ const Edit = () => {
           product.is_featured === "1"
             ? "yes"
             : "no",
-        sizes: selectedSizeIds,
       });
 
       const productImages = Array.isArray(product.images) ? product.images : [];
@@ -350,6 +351,33 @@ const Edit = () => {
     toast.success("Main image changed");
   };
 
+  const toggleSize = (sizeId) => {
+    setSizeQtys((prev) => {
+      const updated = { ...prev };
+      if (updated[sizeId] !== undefined) {
+        delete updated[sizeId];
+      } else {
+        updated[sizeId] = 1;
+      }
+      return updated;
+    });
+  };
+
+  const updateSizeQty = (sizeId, qty) => {
+    setSizeQtys((prev) => ({
+      ...prev,
+      [sizeId]: Math.max(0, Number(qty) || 0),
+    }));
+  };
+  useEffect(() => {
+  const totalQty = Object.values(sizeQtys).reduce(
+    (total, qty) => total + (Number(qty) || 0),
+    0
+  );
+
+  setValue("qty", totalQty);
+}, [sizeQtys, setValue]);
+
   const updateProduct = async (data) => {
     if (gallery.length === 0) {
       toast.error("Please keep at least one product image.");
@@ -377,9 +405,10 @@ const Edit = () => {
         },
         body: JSON.stringify({
           ...data,
-           sizes: Array.isArray(data.sizes)
-    ? data.sizes.map((size) => Number(size))
-    : [],
+          sizes: Object.entries(sizeQtys).map(([sizeId, qty]) => ({
+            id: Number(sizeId),
+            qty: Number(qty) || 0,
+          })),
           existing_images: existingImages,
           delete_images: deleteImages,
           gallery: newImages,
@@ -571,16 +600,88 @@ const Edit = () => {
                   </div>
                 </div>
 
-                <div className="form-row">
+                <div className="form-group">
+                  <label>Available Sizes</label>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                  >
+                    {sizes.length === 0 ? (
+                      <span>No sizes available.</span>
+                    ) : (
+                      sizes.map((size) => {
+                        const isSelected = sizeQtys[size.id] !== undefined;
+                        return (
+                          <div
+                            key={size.id}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "8px 14px",
+                              border: isSelected
+                                ? "1px solid #0d6efd"
+                                : "1px solid #dee2e6",
+                              borderRadius: "6px",
+                              backgroundColor: isSelected ? "#e7f1ff" : "#fff",
+                            }}
+                          >
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                cursor: "pointer",
+                                flex: 1,
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleSize(size.id)}
+                              />
+                              <span>{size.name}</span>
+                            </label>
+
+                            {isSelected && (
+                              <input
+                                type="number"
+                                min="0"
+                                placeholder="Qty"
+                                value={sizeQtys[size.id]}
+                                onChange={(e) =>
+                                  updateSizeQty(size.id, e.target.value)
+                                }
+                                style={{ width: "90px" }}
+                              />
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+                                <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="qty">Quantity</label>
-
                     <input
                       id="qty"
                       type="number"
                       min="0"
                       placeholder="e.g. 50"
+                      readOnly
                       {...register("qty")}
+                      style={{
+                      backgroundColor: '#f0f0f0',
+                      color: '#666666',
+                      borderColor: '#d1d1d1',
+                      cursor: 'default'
+                    }}
                     />
                   </div>
 
@@ -593,58 +694,6 @@ const Edit = () => {
                       placeholder="e.g. 890123456789"
                       {...register("barcode")}
                     />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Available Sizes</label>
-
-                  <div
-                    className="status-toggle-group"
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "10px",
-                    }}
-                  >
-                    {sizes.length === 0 ? (
-                      <span>No sizes available.</span>
-                    ) : (
-                      sizes.map((size) => {
-                        const isSelected = selectedSizes.includes(
-                          String(size.id),
-                        );
-
-                        return (
-                          <label
-                            key={size.id}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                              cursor: "pointer",
-                              padding: "8px 14px",
-                              border: isSelected
-                                ? "1px solid #0d6efd"
-                                : "1px solid #dee2e6",
-                              borderRadius: "6px",
-                              backgroundColor: isSelected ? "#e7f1ff" : "#fff",
-                              color: isSelected ? "#0d6efd" : "#212529",
-                              fontWeight: isSelected ? "600" : "400",
-                              transition: "all 0.2s ease",
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              value={String(size.id)}
-                              {...register("sizes")}
-                            />
-
-                            <span>{size.name}</span>
-                          </label>
-                        );
-                      })
-                    )}
                   </div>
                 </div>
 

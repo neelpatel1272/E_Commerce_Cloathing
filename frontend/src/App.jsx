@@ -25,6 +25,9 @@ import {default as ShowBrands} from './components/admin/brand/Show'
 import {default as CreateBrands} from './components/admin/brand/Create'
 import {default as EditBrands} from './components/admin/brand/Edit'
 
+import {default as ShowShipping} from './components/admin/shipping/Show'
+import {default as CreateShipping} from './components/admin/shipping/Create'
+
 import {default as ShowProducts} from './components/admin/product/Show'
 import {default as CreateProducts} from './components/admin/product/Create'
 import {default as EditProducts} from './components/admin/product/Edit'
@@ -32,12 +35,12 @@ import {default as EditProducts} from './components/admin/product/Edit'
 import {default as ShowOrders} from './components/admin/order/Show'
 import {default as ShowDetailsOrders} from './components/admin/order/Details'
 
-import Checkout from './components/pages/Checkout'
 import UserRequireAuth from './components/users/UserRequireAuth'
 import Cart from './components/pages/Cart'
 import Confirmation from './components/pages/Confirmation'
 import MyOrders from './components/pages/MyOrders'
 import OrderDetails from './components/pages/OrderDetails'
+import ProtectedCheckout from './components/common/ProtectedCheckout'
 
 function App() {
 
@@ -59,7 +62,7 @@ function App() {
             <Route path='/account'  element={<UserAccount/>}/>
             <Route path="/orders/:id" element={<OrderDetails />} />
             <Route path='/account/orders'  element={<MyOrders/>}/>
-            <Route path='/checkout'  element={<Checkout/>}/>
+            <Route path='/checkout'  element={<ProtectedCheckout/>}/>
             <Route path='/order/confirmation/:id'  element={<Confirmation/>}/>
            
         </Route>
@@ -82,6 +85,9 @@ function App() {
              <Route path='/admin/brands' element={<ShowBrands/>}/>
              <Route path='/admin/brands/create' element={<CreateBrands/>}/>
              <Route path='/admin/brands/edit/:id' element={<EditBrands/>}/>
+
+             {/* <Route path='/admin/shippings' element={<ShowShipping/>}/>
+             <Route path='/admin/shippings/create' element={<CreateShipping/>}/> */}
 
               <Route path='/admin/products' element={<ShowProducts/>}/>
              <Route path='/admin/products/create' element={<CreateProducts/>}/>

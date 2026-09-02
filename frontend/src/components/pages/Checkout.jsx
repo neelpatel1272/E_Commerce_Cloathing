@@ -20,7 +20,7 @@ import CheckoutHeader from "../common/CheckoutHeader";
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartData, clearCart } = useContext(CartContext);
+  const { cartData } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
 
@@ -129,8 +129,6 @@ const Checkout = () => {
       );
 
       
-      clearCart();
-
       navigate(`/order/confirmation/${result.id}`);
       
     } catch (error) {

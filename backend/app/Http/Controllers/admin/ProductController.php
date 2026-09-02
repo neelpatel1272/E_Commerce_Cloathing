@@ -43,8 +43,9 @@ class ProductController extends Controller
             'is_featured' => 'required',
             'sku' => 'required|unique:products,sku',
             'status' => 'required',
-            'sizes'=>'nullable|array',
-            'sizes.*'=> 'integer|exists:sizes,id'
+            'sizes' => 'nullable|array',
+            'sizes.*.id' => 'required_with:sizes|integer|exists:sizes,id',
+            'sizes.*.qty' => 'required_with:sizes|integer|min:0',
         ]);
 
         if ($validate->fails()) {
@@ -71,9 +72,14 @@ class ProductController extends Controller
 
         $product->save();
 
-        if($request->has('sizes') && is_array($request->sizes)){
-            $product->sizes()->sync($request->sizes);
-        }
+            if ($request->has('sizes') && is_array($request->sizes)) {
+                $sizeSync = [];
+                foreach ($request->sizes as $sizeItem) {
+                    if (!isset($sizeItem['id'])) continue;
+                    $sizeSync[$sizeItem['id']] = ['qty' => $sizeItem['qty'] ?? 0];
+                }
+                $product->sizes()->sync($sizeSync);
+            }
 
         if ($request->has('gallery') && is_array($request->gallery)) {
             foreach ($request->gallery as $key => $tempImageId) {
@@ -135,7 +141,7 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
     {
         $product = Product::with('images','sizes')->find($id);
 
@@ -152,8 +158,9 @@ class ProductController extends Controller
             'category' => 'required|integer',
             'is_featured' => 'required',
             'sku' => 'required|unique:products,sku,'.$id,
-            'sizes'=>'nullable|array',
-            'sizes.*'=> 'integer|exists:sizes,id',
+            'sizes' => 'nullable|array',
+            'sizes.*.id' => 'required_with:sizes|integer|exists:sizes,id',
+            'sizes.*.qty' => 'required_with:sizes|integer|min:0',
             'status' => 'required',
         ]);
 
@@ -179,38 +186,34 @@ class ProductController extends Controller
 
         $product->save();
 
-        $product->sizes()->sync($request->input('sizes',[]));
-
-      
+        $sizeSync = [];
+        foreach ($request->input('sizes', []) as $sizeItem) {
+            if (!isset($sizeItem['id'])) continue;
+            $sizeSync[$sizeItem['id']] = ['qty' => $sizeItem['qty'] ?? 0];
+        }
+        $product->sizes()->sync($sizeSync);
 
         $deleteImages = $request->input('delete_images', []);
 
         if (is_array($deleteImages)) {
             foreach ($deleteImages as $imageId) {
                 $image = $product->images()->find($imageId);
-
                 if (! $image) {
                     continue;
                 }
-
                 $this->deleteProductImageFiles($image->image);
-
                 $image->delete();
             }
         }
-
-
 
         $newGallery = $request->input('gallery', []);
 
         if (is_array($newGallery)) {
             foreach ($newGallery as $tempImageId) {
                 $tempImage = TempImage::find($tempImageId);
-
                 if (! $tempImage) {
                     continue;
                 }
-
                 $imageName = $this->createProductImage(
                     $product->id,
                     $tempImage->name,
@@ -223,7 +226,6 @@ class ProductController extends Controller
                 ]);
             }
         }
-
 
         $imageOrder = $request->input('image_order', []);
 
@@ -263,6 +265,13 @@ class ProductController extends Controller
             );
 
             return $image;
+        });
+
+        $product->sizes->transform(function ($size) {
+            $size->qty = $size->pivot->qty ?? 0;
+            unset($size->pivot);
+
+            return $size;
         });
 
         return response()->json([

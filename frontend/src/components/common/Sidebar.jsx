@@ -193,13 +193,13 @@ const Sidebar = () => {
             </li>
 
             <li>
-              <NavLink
+              {/* <NavLink
                 to="/admin/shippings"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 <Truck size={18} />
                 <span>Shippings</span>
-              </NavLink>
+              </NavLink> */}
             </li>
 
             <li className="sidebar-title">

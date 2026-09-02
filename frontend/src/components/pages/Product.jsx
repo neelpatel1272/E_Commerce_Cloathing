@@ -28,7 +28,7 @@ const Product = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [loadingProduct, setLoadingProduct] = useState(true);
   const [loadingRelated, setLoadingRelated] = useState(true);
-  const { addTocart } = useContext(CartContext);
+  const { cartData, addTocart } = useContext(CartContext);
 
   const fetchProduct = async () => {
     try {
@@ -76,7 +76,6 @@ const Product = () => {
       setLoadingProduct(false);
     }
   };
-
 
   const fetchCategories = async () => {
     try {
@@ -138,16 +137,31 @@ const Product = () => {
     }
   };
 
-  const handleAddToCart = () => {
-     if (!inStock) return;
+    const handleAddToCart = () => {
+      if (!inStock) {
+        return;
+      }
 
-  if (productSizes.length > 0 && !selectedSize) {
-    return;
-  }
+      if (productSizes.length > 0) {
+        if (!selectedSize) {
+          return;
+        }
 
-  addTocart(product, selectedSize, quantity);
+        if (remainingSizeStock <= 0) {
+          return;
+        }
 
-  }
+        if (quantity > remainingSizeStock) {
+          return;
+        }
+      }
+
+      addTocart(
+        product,
+        selectedSize,
+        quantity
+      );
+    };
 
   useEffect(() => {
     fetchProduct();
@@ -163,19 +177,65 @@ const Product = () => {
     }
   }, [product]);
 
-  const decreaseQty = () => {
-    setQuantity((prev) => Math.max(1, prev - 1));
-  };
+  useEffect(() => {
+  if (!selectedSize) return;
 
-  const increaseQty = () => {
-    const stock = Number(product?.qty ?? product?.stock ?? 0);
+  const sizeId = getSizeId(selectedSize);
+  const sizeStock = getSizeStock(selectedSize);
 
-    if (stock > 0) {
-      setQuantity((prev) => Math.min(stock, prev + 1));
-    } else {
+  const sizeCartItem = cartData?.find(
+    (item) =>
+      String(item.product_id) === String(product?.id) &&
+      String(item.size_id ?? "") === String(sizeId ?? ""),
+  );
+
+  const remaining = sizeStock - Number(sizeCartItem?.qty || 0);
+
+  if (remaining <= 0) {
+    setSelectedSize(null);
+    setQuantity(1);
+  }
+}, [cartData, selectedSize, product]);
+  
+const decreaseQty = () => {
+  setQuantity((prev) =>
+    Math.max(1, prev - 1)
+  );
+};
+
+const increaseQty = () => {
+  if (productSizes.length > 0) {
+    if (
+      remainingSizeStock > 0 &&
+      quantity < remainingSizeStock
+    ) {
       setQuantity((prev) => prev + 1);
     }
-  };
+
+    return;
+  }
+
+  const stock = Number(
+    product?.qty ??
+      product?.stock ??
+      product?.quantity ??
+      0
+  );
+
+  if (stock > 0) {
+    setQuantity((prev) =>
+      Math.min(stock, prev + 1)
+    );
+  } else {
+    setQuantity((prev) => prev + 1);
+  }
+};
+
+const handleSizeChange = (size) => {
+  setSelectedSize(size);
+
+  setQuantity(1);
+};
 
   if (loadingProduct) {
     return (
@@ -217,7 +277,7 @@ const Product = () => {
                 The product you're looking for doesn't exist or was removed.
               </p>
 
-              <Link to="/shop" className="btn btn-primary">
+              <Link to="/" className="btn btn-primary">
                 Back to Shop
               </Link>
             </div>
@@ -256,6 +316,61 @@ const Product = () => {
       : availableQty > 0;
 
   const productSizes = Array.isArray(product?.sizes) ? product.sizes : [];
+
+  const getSizeId = (size) => {
+    if (size === null || size === undefined || size === "") {
+      return null;
+    }
+
+    if (typeof size === "object") {
+      return size?.id ?? null;
+    }
+
+    return size;
+  };
+
+  const getSizeName = (size) => {
+    if (size === null || size === undefined || size === "") {
+      return null;
+    }
+
+    if (typeof size === "object") {
+      return size?.name ?? size?.title ?? null;
+    }
+
+    return size;
+  };
+
+  const getSizeStock = (size) => {
+    if (size && typeof size === "object") {
+      return Number(size.qty ?? size.stock ?? size.quantity ?? 0);
+    }
+
+    return Number(product?.qty ?? product?.stock ?? product?.quantity ?? 0);
+  };
+
+  const selectedSizeStock =
+    productSizes.length > 0
+      ? getSizeStock(selectedSize)
+      : Number(product?.qty ?? product?.stock ?? product?.quantity ?? 0);
+
+  const selectedSizeId = getSizeId(selectedSize);
+
+  const selectedSizeCartItem = cartData?.find(
+    (item) =>
+      String(item.product_id) === String(product.id) &&
+      String(item.size_id ?? "") === String(selectedSizeId ?? ""),
+  );
+
+  const alreadyInCartQty = Number(selectedSizeCartItem?.qty || 0);
+
+  const remainingSizeStock =
+    selectedSizeStock > 0
+      ? Math.max(0, selectedSizeStock - alreadyInCartQty)
+      : 0;
+
+  const selectedSizeAvailable =
+    productSizes.length > 0 ? remainingSizeStock > 0 : true;
 
   const price = Number(product?.price || 0);
   const comparePrice = Number(product?.compare_price || 0);
@@ -388,100 +503,164 @@ const Product = () => {
                       marginTop: "10px",
                     }}
                   >
-                    {productSizes.map((size, index) => {
-                      const sizeId = size?.id ?? size;
+              {productSizes
+                .filter((size) => {
+                  const sizeId = getSizeId(size);
+                  const sizeStock = getSizeStock(size);
 
-                      const sizeName = size?.name ?? size?.title ?? size;
+                  const sizeCartItem = cartData?.find(
+                    (item) =>
+                      String(item.product_id) === String(product.id) &&
+                      String(item.size_id ?? "") === String(sizeId ?? "")
+                  );
 
-                      const isSelected =
-                         String(selectedSize?.id ?? selectedSize) === String(sizeId);
+                  const sizeInCartQty = Number(sizeCartItem?.qty || 0);
+                  const remainingStock = Math.max(0, sizeStock - sizeInCartQty);
 
-                      return (
-                        <button
-                          type="button"
-                          key={sizeId || index}
-                          onClick={() => setSelectedSize(size)}
-                          style={{
-                            padding: "8px 18px",
-                            border: isSelected
-                              ? "1px solid #0d6efd"
-                              : "1px solid #dee2e6",
-                            backgroundColor: isSelected ? "#e7f1ff" : "#fff",
-                            color: isSelected ? "#0d6efd" : "#212529",
-                            borderRadius: "6px",
-                            fontWeight: isSelected ? "600" : "400",
-                            cursor: "pointer",
-                          }}
-                        >
-                          {sizeName}
-                        </button>
-                      );
-                    })}
+                  return remainingStock > 0; // hide sizes with nothing left
+                })
+  .map((size, index) => {
+    const sizeId = getSizeId(size);
+    const sizeName = getSizeName(size);
+    const isSelected =
+      String(selectedSize?.id ?? selectedSize) === String(sizeId);
+
+    return (
+      <button
+        type="button"
+        key={sizeId || index}
+        onClick={() => handleSizeChange(size)}
+        style={{
+          padding: "8px 18px",
+          border: isSelected ? "1px solid #0d6efd" : "1px solid #dee2e6",
+          backgroundColor: isSelected ? "#e7f1ff" : "#fff",
+          color: isSelected ? "#0d6efd" : "#212529",
+          borderRadius: "6px",
+          fontWeight: isSelected ? "600" : "400",
+          cursor: "pointer",
+        }}
+      >
+        {sizeName}
+      </button>
+    );
+  })}
+
+{productSizes.length > 0 &&
+  productSizes.every((size) => {
+    const sizeId = getSizeId(size);
+    const sizeStock = getSizeStock(size);
+    const sizeCartItem = cartData?.find(
+      (item) =>
+        String(item.product_id) === String(product.id) &&
+        String(item.size_id ?? "") === String(sizeId ?? "")
+    );
+    const sizeInCartQty = Number(sizeCartItem?.qty || 0);
+    return Math.max(0, sizeStock - sizeInCartQty) <= 0;
+  }) && (
+    <p style={{ color: "#999", marginTop: "8px" }}>
+      All sizes are currently sold out.
+    </p>
+  )}
                   </div>
                 </div>
               )}
 
-              <div className="pdp-purchase-row">
-                <div className="pdp-qty">
-                  <button
-                    type="button"
-                    onClick={decreaseQty}
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus size={15} />
-                  </button>
-
-                  <span>{quantity}</span>
-
-                  <button
-                    type="button"
-                    onClick={increaseQty}
-                    aria-label="Increase quantity"
-                    disabled={
-                      !inStock || (availableQty > 0 && quantity >= availableQty)
-                    }
-                  >
-                    <Plus size={15} />
-                  </button>
-                </div>
-
+            <div className="pdp-purchase-row">
+              <div className="pdp-qty">
                 <button
                   type="button"
-                  onClick={() => handleAddToCart()}
-                  className="btn btn-primary pdp-add-cart"
-                  disabled={
-                    !inStock || (productSizes.length > 0 && !selectedSize)
-                  }
+                  onClick={decreaseQty}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
                 >
-                  <ShoppingCart size={17} />
-                  {!inStock
-                    ? "Out of Stock"
-                    : productSizes.length > 0 && !selectedSize
-                      ? "Select Size"
-                      : "Add to Cart"}
+                  <Minus size={15} />
                 </button>
-{/* 
+
+                <span>{quantity}</span>
+
                 <button
                   type="button"
-                  className="pdp-wishlist-btn"
-                  aria-label="Add to wishlist"
+                  onClick={increaseQty}
+                  disabled={
+                    !inStock ||
+                    (productSizes.length > 0 &&
+                      (remainingSizeStock <= 0 ||
+                        quantity >=
+                          remainingSizeStock)) ||
+                    (productSizes.length === 0 &&
+                      availableQty > 0 &&
+                      quantity >= availableQty)
+                  }
+                  aria-label="Increase quantity"
                 >
-                  <Heart size={18} />
-                </button> */}
+                  <Plus size={15} />
+                </button>
               </div>
 
-              {inStock && availableQty > 0 && (
-                <div
-                  className="pdp-stock-info"
-                  style={{
-                    marginTop: "12px",
-                    fontSize: "14px",
-                  }}
-                >
-                  <Package size={15} />
-                  <span>{availableQty} items available</span>
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="btn btn-primary pdp-add-cart"
+                disabled={
+                  !inStock ||
+                  (productSizes.length > 0 &&
+                    (!selectedSize ||
+                      remainingSizeStock <= 0 ||
+                      quantity > remainingSizeStock))
+                }
+              >
+                <ShoppingCart size={17} />
+
+                {!inStock
+                  ? "Out of Stock"
+                  : productSizes.length > 0 &&
+                      !selectedSize
+                    ? "Select Size"
+                    : productSizes.length > 0 &&
+                        remainingSizeStock <= 0
+                      ? "Size Sold Out"
+                      : "Add to Cart"}
+              </button>
+            </div>
+
+
+                {inStock &&
+                  productSizes.length > 0 &&
+                  selectedSize &&
+                  remainingSizeStock > 0 && (
+                    <div
+                      className="pdp-stock-info"
+                      style={{
+                        marginTop: "12px",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <Package size={15} />
+
+                      <span>
+                        {remainingSizeStock}{" "}
+                        items available
+                      </span>
+                    </div>
+                  )}
+
+                {inStock &&
+                  productSizes.length === 0 &&
+                  availableQty > 0 && (
+                    <div
+                      className="pdp-stock-info"
+                      style={{
+                        marginTop: "12px",
+                        fontSize: "14px",
+                      }}
+                    >
+                      <Package size={15} />
+
+                      <span>
+                        {availableQty} items available
+                      </span>
+                    </div>
+                  )}
 
               <ul className="pdp-assurance">
                 <li>
@@ -600,57 +779,62 @@ const Product = () => {
                   : relatedProducts.map((item) => {
                       const relatedImage = item?.image_url || null;
 
-  return (
-    <div className="col-6 col-md-3" key={item.id}>
-      <Link
-        to={`/product/${item.id}`}
-        className="text-decoration-none text-dark"
-      >
-        <article className="product-card">
-          <div className="product-card-image">
-            {relatedImage ? (
-              <img
-                src={relatedImage}
-                alt={item.title}
-                loading="lazy"
-              />
-            ) : (
-              <div className="product-image-placeholder">
-                No Image
-              </div>
-            )}
-            <span className="product-view-button">
-    <ArrowUpRight size={18} />
-  </span>
-          </div>
+                      return (
+                        <div className="col-6 col-md-3" key={item.id}>
+                          <Link
+                            to={`/product/${item.id}`}
+                            className="text-decoration-none text-dark"
+                          >
+                            <article className="product-card">
+                              <div className="product-card-image">
+                                {relatedImage ? (
+                                  <img
+                                    src={relatedImage}
+                                    alt={item.title}
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <div className="product-image-placeholder">
+                                    No Image
+                                  </div>
+                                )}
+                                <span className="product-view-button">
+                                  <ArrowUpRight size={18} />
+                                </span>
+                              </div>
 
-          <div className="product-card-content">
-            <span className="product-category">
-              {item?.category?.name ||
-                item?.category_name ||
-                "Product"}
-            </span>
+                              <div className="product-card-content">
+                                <span className="product-category">
+                                  {item?.category?.name ||
+                                    item?.category_name ||
+                                    "Product"}
+                                </span>
 
-            <h3>{item.title}</h3>
+                                <h3>{item.title}</h3>
 
-            <div className="product-price">
-              <span className="product-current-price">
-                ₹
-                {Number(item?.price || 0).toLocaleString("en-IN")}
-              </span>
+                                <div className="product-price">
+                                  <span className="product-current-price">
+                                    ₹
+                                    {Number(item?.price || 0).toLocaleString(
+                                      "en-IN",
+                                    )}
+                                  </span>
 
-              {item?.compare_price &&
-                Number(item.compare_price) > Number(item.price) && (
-                  <span className="product-old-price">
-                    ₹
-                    {Number(item.compare_price).toLocaleString("en-IN")}
-                  </span>
-                )}
-            </div>
-          </div>
-        </article>
-      </Link>
-    </div>
+                                  {item?.compare_price &&
+                                    Number(item.compare_price) >
+                                      Number(item.price) && (
+                                      <span className="product-old-price">
+                                        ₹
+                                        {Number(
+                                          item.compare_price,
+                                        ).toLocaleString("en-IN")}
+                                      </span>
+                                    )}
+                                </div>
+                              </div>
+                            </article>
+                          </Link>
+                        </div>
                       );
                     })}
               </div>
