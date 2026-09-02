@@ -327,12 +327,6 @@ public function update(Request $request, $id)
 
         $img->save($largePath);
 
-        /*
-        |--------------------------------------------------------------------------
-        | SMALL IMAGE
-        |--------------------------------------------------------------------------
-        */
-
         $img = $manager->read($tempPath);
 
         $img->coverDown(400, 460);
