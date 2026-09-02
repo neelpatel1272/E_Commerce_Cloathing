@@ -1303,15 +1303,6 @@ footer {
     min-height: 110px;
   }
 
-  // select {
-  //   appearance: none;
-  //   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23061123' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
-  //   background-repeat: no-repeat;
-  //   background-position: right 14px center;
-  //   padding-right: 36px;
-  //   cursor: pointer;
-  // }
-
   .form-error {
     display: block;
     color: #e0475a;
@@ -5832,6 +5823,11 @@ footer {
         color: #df8b32;
         background: #fff2e3;
       }
+
+      &.green {
+        color: #1d9a6a;
+        background: #e5f6ef;
+      }
     }
 
     h3 {
@@ -5947,6 +5943,104 @@ footer {
     color: $primary-color;
     font-size: 12px;
     font-weight: 600;
+  }
+
+  /* ---------------------------------------------------------
+     Online Payment Details (Razorpay) card
+  --------------------------------------------------------- */
+
+  .payment-details-card {
+    .card-heading {
+      position: relative;
+      flex-wrap: wrap;
+      row-gap: 10px;
+    }
+  }
+
+  .payment-success-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #e5f6ef;
+    color: #1d9a6a;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .payment-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .payment-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #e2e8ef;
+    border-radius: $radius-sm;
+    background: #f6f9fc;
+
+    &.payment-signature-item {
+      grid-column: 1 / -1;
+      align-items: flex-start;
+    }
+
+    .payment-detail-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      border-radius: 9px;
+      color: #1d9a6a;
+      background: #e5f6ef;
+    }
+
+    div {
+      min-width: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: #9aa5b1;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    strong {
+      display: block;
+      overflow: hidden;
+      color: #172235;
+      font-size: 13px;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .payment-id-text {
+      font-family: "Courier New", monospace;
+      font-size: 11.5px;
+      letter-spacing: 0.2px;
+    }
+
+    .payment-signature {
+      overflow-wrap: anywhere;
+      white-space: normal;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+    }
   }
 
   .product-heading {
@@ -6643,6 +6737,10 @@ footer {
       grid-template-columns: 1fr;
     }
 
+    .payment-details-grid {
+      grid-template-columns: 1fr;
+    }
+
     .products-header,
     .product-item {
       grid-template-columns: minmax(180px, 1fr) 85px 55px 90px;
@@ -6806,6 +6904,25 @@ footer {
       flex-basis: 52px;
     }
 
+    .payment-details-card {
+      .card-heading {
+        align-items: flex-start;
+      }
+    }
+
+    .payment-success-badge {
+      margin-left: 0;
+    }
+
+    .payment-details-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .payment-detail-item {
+      padding: 12px;
+    }
+
     .status-update-header,
     .summary-top {
       padding: 18px;
@@ -6873,6 +6990,24 @@ footer {
     .product-column {
       justify-content: space-between;
       padding: 0 5px;
+    }
+
+    .payment-detail-item {
+      flex-wrap: wrap;
+
+      .payment-detail-icon {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+      }
+
+      .payment-id-text {
+        font-size: 10.5px;
+      }
+
+      .payment-signature {
+        font-size: 10px;
+      }
     }
 
     .grand-total {

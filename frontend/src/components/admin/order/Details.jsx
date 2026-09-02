@@ -16,6 +16,9 @@ import {
   Hash,
   ShoppingBag,
   ChevronRight,
+  ShieldCheck,
+  IndianRupee,
+  Receipt,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -59,10 +62,12 @@ const PAYMENT_STATUSES = [
   { value: "not paid", label: "Not Paid" },
 ];
 
-const formatPrice = (price) => Number(price || 0).toLocaleString("en-IN");
+const formatPrice = (price) =>
+  Number(price || 0).toLocaleString("en-IN");
 
 const formatDate = (date) => {
   if (!date) return "-";
+
   return new Date(date).toLocaleString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -141,7 +146,9 @@ const Details = () => {
         setOrder(result.data);
         setItems(result.data.items || []);
         setSelectedStatus(result.data.status || "pending");
-        setSelectedPaymentStatus(result.data.payment_status || "not paid");
+        setSelectedPaymentStatus(
+          result.data.payment_status || "not paid"
+        );
       } else {
         toast.error(result.message || "Order not found");
         setOrder(null);
@@ -198,6 +205,7 @@ const Details = () => {
 
       if (res.ok && result.status === true) {
         toast.success(result.message || "Order updated successfully");
+
         setOrder((prev) => ({
           ...prev,
           status: selectedStatus,
@@ -243,7 +251,8 @@ const Details = () => {
               </div>
               <h3>Order Not Found</h3>
               <p>
-                The order you are looking for doesn't exist or has been removed.
+                The order you are looking for doesn't exist or has been
+                removed.
               </p>
               <Link to="/admin/orders" className="back-orders-btn">
                 <ArrowLeft size={16} />
@@ -257,12 +266,15 @@ const Details = () => {
   }
 
   const isCancelled = order.status?.toLowerCase() === "cancelled";
-  const isPaid = order.payment_status === "paid";
+  const isPaid = order.payment_status?.toLowerCase() === "paid";
+  const isOnlinePayment =
+    order.payment_method?.toLowerCase() === "razorpay";
 
   return (
     <div className="container-fluid order-details-page px-4 py-4">
       <div className="row">
         <Sidebar />
+
         <div className="col-md-9">
           <div className="order-hero">
             <div className="hero-top">
@@ -270,12 +282,16 @@ const Details = () => {
                 <ArrowLeft size={16} />
                 <span>Back to Orders</span>
               </Link>
+
               <div className="hero-actions">
                 <span className="order-id-badge">
                   <Hash size={13} />
                   {order.id}
                 </span>
-                <span className={`hero-status ${getStatusClass(order.status)}`}>
+
+                <span
+                  className={`hero-status ${getStatusClass(order.status)}`}
+                >
                   {getStatusIcon(order.status)}
                   <span>{order.status || "Pending"}</span>
                 </span>
@@ -285,30 +301,40 @@ const Details = () => {
             <div className="hero-content">
               <div className="hero-main">
                 <div className="order-label">ORDER DETAILS</div>
+
                 <h1>
                   Order <span>#{order.id}</span>
                 </h1>
+
                 <div className="hero-meta">
                   <span>
                     <Calendar size={14} />
                     {formatDate(order.created_at)}
                   </span>
+
                   <i></i>
+
                   <span>
                     <ShoppingBag size={14} />
                     {items.length} {items.length === 1 ? "Item" : "Items"}
                   </span>
+
                   <i></i>
+
                   <span>
                     <CreditCard size={14} />
                     {order.payment_method || "N/A"}
                   </span>
                 </div>
               </div>
+
               <div className="hero-total">
                 <span>Order Total</span>
                 <strong>₹{formatPrice(order.grand_total)}</strong>
-                <small>{isPaid ? "Payment received" : "Payment pending"}</small>
+
+                <small>
+                  {isPaid ? "Payment received" : "Payment pending"}
+                </small>
               </div>
             </div>
 
@@ -319,13 +345,19 @@ const Details = () => {
                     className="progress-filled"
                     style={{
                       width:
-                        progress === 1 ? "0%" : progress === 2 ? "50%" : "100%",
+                        progress === 1
+                          ? "0%"
+                          : progress === 2
+                          ? "50%"
+                          : "100%",
                     }}
                   ></div>
                 </div>
 
                 <div
-                  className={`progress-step ${progress >= 1 ? "active" : ""}`}
+                  className={`progress-step ${
+                    progress >= 1 ? "active" : ""
+                  }`}
                 >
                   <div className="step-circle">
                     {progress > 1 ? (
@@ -334,6 +366,7 @@ const Details = () => {
                       <Clock3 size={16} />
                     )}
                   </div>
+
                   <div>
                     <strong>Pending</strong>
                     <span>Order placed</span>
@@ -341,7 +374,9 @@ const Details = () => {
                 </div>
 
                 <div
-                  className={`progress-step ${progress >= 2 ? "active" : ""}`}
+                  className={`progress-step ${
+                    progress >= 2 ? "active" : ""
+                  }`}
                 >
                   <div className="step-circle">
                     {progress >= 3 ? (
@@ -350,6 +385,7 @@ const Details = () => {
                       <Truck size={16} />
                     )}
                   </div>
+
                   <div>
                     <strong>Shipped</strong>
                     <span>On the way</span>
@@ -357,11 +393,14 @@ const Details = () => {
                 </div>
 
                 <div
-                  className={`progress-step ${progress >= 3 ? "active" : ""}`}
+                  className={`progress-step ${
+                    progress >= 3 ? "active" : ""
+                  }`}
                 >
                   <div className="step-circle">
                     <CheckCircle2 size={16} />
                   </div>
+
                   <div>
                     <strong>Delivered</strong>
                     <span>Order completed</span>
@@ -373,9 +412,12 @@ const Details = () => {
                 <div className="cancelled-icon">
                   <XCircle size={18} />
                 </div>
+
                 <div>
                   <strong>Order Cancelled</strong>
-                  <span>This order is no longer being processed.</span>
+                  <span>
+                    This order is no longer being processed.
+                  </span>
                 </div>
               </div>
             )}
@@ -388,6 +430,7 @@ const Details = () => {
                   <div className="heading-icon purple">
                     <User size={18} />
                   </div>
+
                   <div>
                     <h3>Customer Information</h3>
                     <span>Contact details of the customer</span>
@@ -399,6 +442,7 @@ const Details = () => {
                     <div className="item-icon">
                       <User size={16} />
                     </div>
+
                     <div className="item-content">
                       <label>Full Name</label>
                       <strong>{order.name || "-"}</strong>
@@ -409,6 +453,7 @@ const Details = () => {
                     <div className="item-icon">
                       <Mail size={16} />
                     </div>
+
                     <div className="item-content">
                       <label>Email Address</label>
                       <strong>{order.email || "-"}</strong>
@@ -419,6 +464,7 @@ const Details = () => {
                     <div className="item-icon">
                       <Phone size={16} />
                     </div>
+
                     <div className="item-content">
                       <label>Phone Number</label>
                       <strong>{order.mobile || "-"}</strong>
@@ -432,6 +478,7 @@ const Details = () => {
                   <div className="heading-icon blue">
                     <MapPin size={18} />
                   </div>
+
                   <div>
                     <h3>Shipping Address</h3>
                     <span>Delivery information</span>
@@ -442,14 +489,19 @@ const Details = () => {
                   <div className="shipping-map-icon">
                     <MapPin size={22} />
                   </div>
+
                   <div className="shipping-details">
-                    <div className="shipping-name">{order.name || "-"}</div>
+                    <div className="shipping-name">
+                      {order.name || "-"}
+                    </div>
+
                     <p>
                       {order.address || "-"}
                       <br />
                       {order.city || "-"}, {order.state || "-"} -{" "}
                       {order.zip || "-"}
                     </p>
+
                     {order.mobile && (
                       <div className="shipping-phone">
                         <Phone size={13} />
@@ -460,12 +512,98 @@ const Details = () => {
                 </div>
               </div>
 
+              {isOnlinePayment && (
+                <div className="premium-card payment-details-card">
+                  <div className="card-heading">
+                    <div className="heading-icon green">
+                      <CreditCard size={18} />
+                    </div>
+
+                    <div>
+                      <h3>Online Payment Details</h3>
+                      <span>Razorpay payment information</span>
+                    </div>
+
+                    <span className="payment-success-badge">
+                      <CheckCircle2 size={14} />
+                      {isPaid ? "Payment Successful" : "Payment Pending"}
+                    </span>
+                  </div>
+
+                  <div className="payment-details-grid">
+                    <div className="payment-detail-item">
+                      <div className="payment-detail-icon">
+                        <Receipt size={16} />
+                      </div>
+
+                      <div>
+                        <label>Payment Method</label>
+                        <strong>Razorpay</strong>
+                      </div>
+                    </div>
+
+                    <div className="payment-detail-item">
+                      <div className="payment-detail-icon">
+                        <CheckCircle2 size={16} />
+                      </div>
+
+                      <div>
+                        <label>Payment Status</label>
+                        <strong className={isPaid ? "text-success" : ""}>
+                          {order.payment_status || "Not Paid"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="payment-detail-item">
+                      <div className="payment-detail-icon">
+                        <Hash size={16} />
+                      </div>
+
+                      <div>
+                        <label>Razorpay Order ID</label>
+                        <strong className="payment-id-text">
+                          {order.razorpay_order_id || "-"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="payment-detail-item">
+                      <div className="payment-detail-icon">
+                        <CreditCard size={16} />
+                      </div>
+
+                      <div>
+                        <label>Razorpay Payment ID</label>
+                        <strong className="payment-id-text">
+                          {order.razorpay_payment_id || "-"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="payment-detail-item payment-signature-item">
+                      <div className="payment-detail-icon">
+                        <ShieldCheck size={16} />
+                      </div>
+
+                      <div>
+                        <label>Payment Signature</label>
+                        <strong className="payment-signature">
+                          {order.razorpay_signature || "-"}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="premium-card products-card">
                 <div className="card-heading product-heading">
                   <div className="heading-left">
                     <div className="heading-icon orange">
                       <Package size={18} />
                     </div>
+
                     <div>
                       <h3>Order Items</h3>
                       <span>Products included in this order</span>
@@ -473,7 +611,8 @@ const Details = () => {
                   </div>
 
                   <span className="items-count">
-                    {items.length} {items.length === 1 ? "Item" : "Items"}
+                    {items.length}{" "}
+                    {items.length === 1 ? "Item" : "Items"}
                   </span>
                 </div>
 
@@ -492,8 +631,6 @@ const Details = () => {
                         const qty = Number(item.qty || 0);
                         const itemTotal = price * qty;
 
-                        // const imageUrl = item.product?.image || null;
-
                         return (
                           <div className="product-item" key={item.id}>
                             <div className="product-main">
@@ -501,9 +638,14 @@ const Details = () => {
                                 {item.product?.image_url ? (
                                   <img
                                     src={item.product.image_url}
-                                    alt={item.name || item.product?.title || "Product"}
+                                    alt={
+                                      item.name ||
+                                      item.product?.title ||
+                                      "Product"
+                                    }
                                     onError={(e) => {
-                                      e.currentTarget.style.display = "none";
+                                      e.currentTarget.style.display =
+                                        "none";
                                     }}
                                   />
                                 ) : (
@@ -513,10 +655,16 @@ const Details = () => {
 
                               <div className="product-name">
                                 <strong>{item.name || "-"}</strong>
+
                                 {item.product_id && (
-                                  <small>Product ID: {item.product_id}</small>
+                                  <small>
+                                    Product ID: {item.product_id}
+                                  </small>
                                 )}
-                                {item.size && <span>Size: {item.size}</span>}
+
+                                {item.size && (
+                                  <span>Size: {item.size}</span>
+                                )}
                               </div>
                             </div>
 
@@ -532,7 +680,9 @@ const Details = () => {
 
                             <div className="product-column product-total">
                               <span className="mobile-label">Total</span>
-                              <strong>₹{formatPrice(itemTotal)}</strong>
+                              <strong>
+                                ₹{formatPrice(itemTotal)}
+                              </strong>
                             </div>
                           </div>
                         );
@@ -546,6 +696,68 @@ const Details = () => {
                   )}
                 </div>
               </div>
+
+              <div className="premium-card order-summary-card">
+                <div className="card-heading">
+                  <div className="heading-icon blue">
+                    <IndianRupee size={18} />
+                  </div>
+
+                  <div>
+                    <h3>Payment Summary</h3>
+                    <span>Complete order amount breakdown</span>
+                  </div>
+                </div>
+
+                <div className="summary-list">
+                  <div className="summary-row">
+                    <span>Subtotal</span>
+                    <strong>
+                      ₹{formatPrice(order.sub_total)}
+                    </strong>
+                  </div>
+
+                  <div className="summary-row">
+                    <span>Shipping</span>
+                    <strong>
+                      {Number(order.shipping || 0) === 0
+                        ? "FREE"
+                        : `₹${formatPrice(order.shipping)}`}
+                    </strong>
+                  </div>
+
+                  <div className="summary-row">
+                    <span>Discount</span>
+                    <strong className="discount-value">
+                      -₹{formatPrice(order.discount)}
+                    </strong>
+                  </div>
+
+                  <div className="summary-row summary-total">
+                    <span>Grand Total</span>
+                    <strong>
+                      ₹{formatPrice(order.grand_total)}
+                    </strong>
+                  </div>
+
+                  <div className="summary-payment-status">
+                    <span>Payment Status</span>
+
+                    <span
+                      className={`payment-status-badge ${
+                        isPaid ? "paid" : "not-paid"
+                      }`}
+                    >
+                      {isPaid ? (
+                        <CheckCircle2 size={14} />
+                      ) : (
+                        <Clock3 size={14} />
+                      )}
+                      {isPaid ? "Paid" : "Not Paid"}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="col-lg-4">
@@ -554,6 +766,7 @@ const Details = () => {
                   <div className="status-update-icon">
                     <Truck size={19} />
                   </div>
+
                   <div>
                     <h3>Update Order</h3>
                     <span>Manage order status</span>
@@ -568,14 +781,21 @@ const Details = () => {
                   <div className="status-options">
                     {STATUSES.map((status) => {
                       const Icon = status.icon;
-                      const isSelected = selectedStatus === status.value;
+                      const isSelected =
+                        selectedStatus === status.value;
 
                       return (
                         <button
                           type="button"
                           key={status.value}
-                          className={`status-option ${isSelected ? `selected ${status.className}` : ""}`}
-                          onClick={() => setSelectedStatus(status.value)}
+                          className={`status-option ${
+                            isSelected
+                              ? `selected ${status.className}`
+                              : ""
+                          }`}
+                          onClick={() =>
+                            setSelectedStatus(status.value)
+                          }
                           disabled={updatingStatus}
                         >
                           <div
@@ -612,11 +832,16 @@ const Details = () => {
                     <select
                       className="form-select payment-status-select"
                       value={selectedPaymentStatus}
-                      onChange={(e) => setSelectedPaymentStatus(e.target.value)}
+                      onChange={(e) =>
+                        setSelectedPaymentStatus(e.target.value)
+                      }
                       disabled={updatingStatus}
                     >
                       {PAYMENT_STATUSES.map((status) => (
-                        <option key={status.value} value={status.value}>
+                        <option
+                          key={status.value}
+                          value={status.value}
+                        >
                           {status.label}
                         </option>
                       ))}

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    protected $guarded = [];
 
  protected  $casts = [
     'created_at' =>  'datetime:d-F-Y',

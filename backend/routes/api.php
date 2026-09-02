@@ -15,7 +15,6 @@ use App\Http\Controllers\front\OrderController as FrontOrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
 Route::post('admin/login',[AuthController::class, 'authenticate']);
 Route::get('get-latest-products',[FrontProductController::class, 'latestproduct']);
 Route::get('get-featured-products',[FrontProductController::class, 'featuredproduct']);
@@ -30,6 +29,8 @@ Route::post('login', [FrontAccountController::class, 'authenticate']);
 //protected User Routes
 Route::group(['middleware' => ['auth:sanctum','checkUserRole']], function (){
      Route::post('save-order',[FrontOrderController::class, 'saveOrder']);
+     Route::post('razorpay/create-order', [FrontOrderController::class, 'createRazorpayOrder']);
+     Route::post('razorpay/verify-payment', [FrontOrderController::class, 'verifyRazorpayPayment']);
      Route::get('get-orders',[FrontAccountController::class, 'getorders']);
      Route::put('update-profile',[FrontAccountController::class, 'updateprofile']);
      Route::get('get-order-details/{id}',[FrontAccountController::class, 'getOrderDetails']);

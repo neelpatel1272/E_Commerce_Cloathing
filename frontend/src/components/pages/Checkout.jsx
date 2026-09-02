@@ -65,76 +65,96 @@ const Checkout = () => {
   const discount = 0;
   const total = subtotal + shipping - discount;
 
-  const processorder = (data) => {
+ const buildCheckoutPayload = (formData) => ({
+    name: formData.name,
+    email: formData.email,
+    mobile: formData.mobile,
+    address: formData.address,
+    city: formData.city,
+    state: formData.state,
+    zip: formData.zip,
+    // Prices are intentionally not sent: the server calculates them from its database.
+    cart: cartData.map((item) => ({
+      product_id: item.product_id,
+      size: item.size || "",
+      qty: Number(item.qty || 1),
+    })),
+  });
+
+  const request = async (path, body) => {
+    const response = await fetch(`${apiurl}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${usertoken()}` },
+      body: JSON.stringify(body),
+    });
+    const result = await response.json();
+    if (!response.ok || result.status !== true) throw new Error(result.message || "Unable to process your order");
+    return result;
+  };
+
+  const loadRazorpay = () => new Promise((resolve, reject) => {
+    if (window.Razorpay) return resolve();
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Unable to load Razorpay checkout"));
+    document.body.appendChild(script);
+  });
+
+  const processorder = async (data) => {
     if (cartData.length === 0) {
       toast.error("Your cart is empty");
       return;
     }
+    if (paymentMethod === "cod") return saveCodOrder(data);
+    return payWithRazorpay(data);
+  };
 
-    if (paymentMethod === "cod") {
-      saveorder(data, "not paid");
-    } else {
-      saveorder(data, "paid");
+  const saveCodOrder = async (formData) => {
+    setLoading(true);
+    try {
+      const result = await request("save-order", buildCheckoutPayload(formData));
+      toast.success(result.message);
+      navigate(`/order/confirmation/${result.id}`);
+    } catch (error) {
+      toast.error(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const saveorder = async (formData, paymentstatus) => {
+  const payWithRazorpay = async (formData) => {
     setLoading(true);
-
     try {
-      const cart = cartData.map((item) => ({
-        product_id: item.product_id,
-        name: item.title,
-        size: item.size || "",
-        price: Number(item.price || 0),
-        qty: Number(item.qty || 1),
-      }));
-
-      const newformData = {
-        name: formData.name,
-        email: formData.email,
-        mobile: formData.mobile,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zip: formData.zip,
-        grand_total: total,
-        sub_total: subtotal,
-        shipping: shipping,
-        discount: discount,
-        payment_status: paymentstatus,
-        status: "pending",
-        cart: cart,
-      };
-
-      const response = await fetch(`${apiurl}save-order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${usertoken()}`,
+      const payload = buildCheckoutPayload(formData);
+      const payment = await request("razorpay/create-order", payload);
+      await loadRazorpay();
+      const razorpay = new window.Razorpay({
+        key: payment.key_id,
+        amount: payment.amount,
+        currency: payment.currency,
+        order_id: payment.razorpay_order_id,
+        name: "E-Commerce Clothing",
+        description: `Order payment of ₹${total.toLocaleString("en-IN")}`,
+        prefill: { name: formData.name, email: formData.email, contact: formData.mobile },
+        handler: async (response) => {
+          try {
+            const result = await request("razorpay/verify-payment", response);
+            toast.success(result.message || "Payment verified and order placed successfully.");
+            navigate(`/order/confirmation/${result.id}`);
+          } catch (error) {
+            toast.error(error.message || "Payment was received but could not be verified. Please contact support.");
+          } finally {
+            setLoading(false);
+          }
         },
-        body: JSON.stringify(newformData),
+        modal: { ondismiss: () => setLoading(false) },
       });
-
-      const result = await response.json();
-
-      if (!response.ok || result.status !== true) {
-        toast.error(result.message || "Unable to place order");
-        return;
-      }
-
-      toast.success(
-        result.message || "You have successfully placed your order.",
-      );
-
-      
-      navigate(`/order/confirmation/${result.id}`);
-      
+      razorpay.on("payment.failed", () => { setLoading(false); toast.error("Payment failed. No order was placed."); });
+      razorpay.open();
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
+      toast.error(error.message || "Unable to start online payment.");
     }
   };
 
